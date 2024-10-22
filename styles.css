@@ -1,0 +1,38 @@
+body,
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+canvas {
+  display: block;
+}
+.control-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 120px; /* Увеличили высоту панели до 120 пикселей */
+  background-color: rgba(255, 255, 255, 0.8);
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  align-items: flex-start; /* Выравниваем по верху */
+  padding: 0 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+}
+.control-panel .group {
+  display: flex;
+  flex-direction: column; /* Выравнивание параметров в столбик */
+  margin-right: 20px; /* Отступ между группами */
+}
+.control-panel label {
+  margin: 0;
+}
+.control-panel .value {
+  margin: 0 0 5px 0; /* Отступ между значением и ползунком */
+}
+.spacer {
+  width: 20px; /* Ширина пространства между параметрами */
+}

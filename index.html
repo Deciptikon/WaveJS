@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Canvas with Control Panel</title>
+    <link rel="stylesheet" href="styles.css" />
+    <!-- Подключаем CSS файл -->
+  </head>
+  <body>
+    <div class="control-panel">
+      <div class="group">
+        <label for="paramChi">Param Chi:</label>
+        <div class="value" id="paramChiValue">50</div>
+        <input type="range" id="paramChi" min="0" max="100" value="50" />
+
+        <div class="spacer"></div>
+        <!-- Пространство между параметрами -->
+
+        <label for="paramOmega">Param Omega:</label>
+        <div class="value" id="paramOmegaValue">50</div>
+        <input type="range" id="paramOmega" min="0" max="100" value="50" />
+      </div>
+
+      <div class="spacer" style="width: 40px"></div>
+      <!-- Пространство между группами -->
+
+      <div class="group">
+        <label for="canvasWidth">Width:</label>
+        <div class="value" id="canvasWidthValue">300</div>
+        <input type="range" id="canvasWidth" min="100" max="1200" value="300" />
+
+        <div class="spacer"></div>
+        <!-- Пространство между параметрами -->
+
+        <label for="canvasHeight">Height:</label>
+        <div class="value" id="canvasHeightValue">200</div>
+        <input type="range" id="canvasHeight" min="100" max="800" value="200" />
+      </div>
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+    <script src="script.js"></script>
+    <!-- Подключаем JavaScript файл -->
+  </body>
+</html>
