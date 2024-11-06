@@ -1,17 +1,47 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-// параметры
+// параметры ==========================================================
 const paramChiInput = document.getElementById("paramChi");
 const paramOmegaInput = document.getElementById("paramOmega");
+
+const paramAmplutudaInput = document.getElementById("paramAmplutuda");
+const paramSInput = document.getElementById("paramS");
+
 const canvasWidthInput = document.getElementById("canvasWidth");
 const canvasHeightInput = document.getElementById("canvasHeight");
 
-// элементы
+const paramX0Input = document.getElementById("paramX0");
+const paramY0Input = document.getElementById("paramY0");
+
+const paramScaleInput = document.getElementById("paramScale");
+
+const paramAlfaInput = document.getElementById("paramAlfa");
+const paramBettaInput = document.getElementById("paramBetta");
+
+const paramGammaInput = document.getElementById("paramGamma");
+const paramRoInput = document.getElementById("paramRo");
+
+// элементы ===========================================================
 const paramChiValue = document.getElementById("paramChiValue");
 const paramOmegaValue = document.getElementById("paramOmegaValue");
+
+const paramAmplutudaValue = document.getElementById("paramAmplutudaValue");
+const paramSValue = document.getElementById("paramSValue");
+
 const canvasWidthValue = document.getElementById("canvasWidthValue");
 const canvasHeightValue = document.getElementById("canvasHeightValue");
+
+const paramX0Value = document.getElementById("paramX0Value");
+const paramY0Value = document.getElementById("paramY0Value");
+
+const paramScaleValue = document.getElementById("paramScaleValue");
+
+const paramAlfaValue = document.getElementById("paramAlfaValue");
+const paramBettaValue = document.getElementById("paramBettaValue");
+
+const paramGammaValue = document.getElementById("paramGammaValue");
+const paramRoValue = document.getElementById("paramRoValue");
 
 // Устанавливаем начальные размеры канваса на всю страницу
 canvas.width = window.innerWidth;
@@ -22,14 +52,14 @@ function updateCanvas() {
   // Обновляем значения параметров и отображение
   const paramChi = paramChiInput.value;
   const paramOmega = paramOmegaInput.value;
-  const paramAmplutuda = 1;
-  const paramS = 1;
+  const paramAmplutuda = paramAmplutudaInput.value;
+  const paramS = paramSInput.value;
 
   const canvasWidth = canvasWidthInput.value;
   const canvasHeight = canvasHeightInput.value;
-  const paramX0 = 0;
-  const paramY0 = 0;
-  const paramScale = 1.0;
+  const paramX0 = paramX0Input.value;
+  const paramY0 = paramY0Input.value;
+  const paramScale = paramScaleInput.value;
 
   const paramR = 200;
   const paramr = 100;
@@ -37,15 +67,32 @@ function updateCanvas() {
   const paramMK = 10; //это не изменяемый параметр
 
   //параметры резца
-  const paramAlfa = Math.PI / 3;
-  const paramBetta = Math.PI / 4;
-  const paramGamma = 0;
-  const paramRo = 1;
+  const paramAlfa = paramAlfaInput.value;
+  const paramBetta = paramBettaInput.value;
+  const paramGamma = paramGammaInput.value;
+  const paramRo = paramRoInput.value;
+
+  // установка чисел в html
 
   paramChiValue.textContent = paramChi;
   paramOmegaValue.textContent = paramOmega;
+
+  paramAmplutudaValue.textContent = paramAmplutuda;
+  paramSValue.textContent = paramS;
+
   canvasWidthValue.textContent = canvasWidth;
   canvasHeightValue.textContent = canvasHeight;
+
+  paramX0Value.textContent = paramX0;
+  paramY0Value.textContent = paramY0;
+
+  paramScaleValue.textContent = paramScale;
+
+  paramAlfaValue.textContent = paramAlfa;
+  paramBettaValue.textContent = paramBetta;
+
+  paramGammaValue.textContent = paramGamma;
+  paramRoValue.textContent = paramRo;
 
   draw(
     [paramChi, paramOmega, paramAmplutuda, paramS],
@@ -161,8 +208,23 @@ function model(j, i, data, geometry, support, resez) {
 // Обновляем канвас при изменении ползунков
 paramChiInput.addEventListener("input", updateCanvas);
 paramOmegaInput.addEventListener("input", updateCanvas);
+
+paramAmplutudaInput.addEventListener("input", updateCanvas);
+paramSInput.addEventListener("input", updateCanvas);
+
 canvasWidthInput.addEventListener("input", updateCanvas);
 canvasHeightInput.addEventListener("input", updateCanvas);
+
+paramX0Input.addEventListener("input", updateCanvas);
+paramY0Input.addEventListener("input", updateCanvas);
+
+paramScaleInput.addEventListener("input", updateCanvas);
+
+paramAlfaInput.addEventListener("input", updateCanvas);
+paramBettaInput.addEventListener("input", updateCanvas);
+
+paramGammaInput.addEventListener("input", updateCanvas);
+paramRoInput.addEventListener("input", updateCanvas);
 
 // Вызываем начальную отрисовку
 updateCanvas();

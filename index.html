@@ -15,8 +15,9 @@
     <div class="control-panel">
       <div class="col">
         <div class="row">
-          <label for="paramChi">χ:</label>
+          <label for="paramChi">Колебания χ:</label>
           <div class="value" id="paramChiValue">9</div>
+          <label for="paramChi">Гц</label>
         </div>
         <input
           type="range"
@@ -30,8 +31,9 @@
         <div class="spacer-row"></div>
 
         <div class="row">
-          <label for="paramOmega">ω:</label>
+          <label for="paramOmega">Вращение ω:</label>
           <div class="value" id="paramOmegaValue">8</div>
+          <label for="paramOmega">об/с</label>
         </div>
         <input
           type="range"
@@ -43,23 +45,171 @@
         />
       </div>
 
-      <div class="spacer-col" style="width: 40px"></div>
-      <!-- Пространство между группами -->
+      <div class="spacer-col"></div>
 
       <div class="col">
         <div class="row">
-          <label for="canvasWidth">Width:</label>
+          <label for="paramAmplutuda">Амплитуда A:</label>
+          <div class="value" id="paramAmplutudaValue">1</div>
+          <label for="paramAmplutuda">мм</label>
+        </div>
+        <input
+          type="range"
+          id="paramAmplutuda"
+          min="0"
+          max="10"
+          value="1"
+          step="0.01"
+        />
+
+        <div class="spacer-row"></div>
+
+        <div class="row">
+          <label for="paramS">Подача s:</label>
+          <div class="value" id="paramSValue">1</div>
+          <label for="paramS">мм/с</label>
+        </div>
+        <input
+          type="range"
+          id="paramS"
+          min="0"
+          max="10"
+          value="1"
+          step="0.01"
+        />
+      </div>
+
+      <div class="spacer-col"></div>
+      <div class="spacer-col"></div>
+      <div class="spacer-col"></div>
+
+      <div class="col">
+        <div class="row">
+          <label for="canvasWidth">Ширина картинки:</label>
           <div class="value" id="canvasWidthValue">450</div>
+          <label for="canvasWidth">px</label>
         </div>
         <input type="range" id="canvasWidth" min="100" max="1200" value="450" />
 
         <div class="spacer-row"></div>
 
         <div class="row">
-          <label for="canvasHeight">Height:</label>
+          <label for="canvasHeight">Высота картинки:</label>
           <div class="value" id="canvasHeightValue">300</div>
+          <label for="canvasHeight">px</label>
         </div>
         <input type="range" id="canvasHeight" min="100" max="800" value="300" />
+      </div>
+
+      <div class="spacer-col"></div>
+
+      <div class="col">
+        <div class="row">
+          <label for="paramX0">Смещение по X:</label>
+          <div class="value" id="paramX0Value">100</div>
+          <label for="paramX0">мм</label>
+        </div>
+        <input type="range" id="paramX0" min="-300" max="300" value="100" />
+
+        <div class="spacer-row"></div>
+
+        <div class="row">
+          <label for="paramY0">Смещение по Y:</label>
+          <div class="value" id="paramY0Value">0</div>
+          <label for="paramY0">мм</label>
+        </div>
+        <input type="range" id="paramY0" min="-300" max="300" value="0" />
+      </div>
+
+      <div class="spacer-col"></div>
+
+      <div class="col">
+        <div class="row">
+          <label for="paramScale">Масштаб:</label>
+          <div class="value" id="paramScaleValue">0.1</div>
+        </div>
+        <input
+          type="range"
+          id="paramScale"
+          min="0.01"
+          max="1"
+          value="0.1"
+          step="0.01"
+        />
+
+        <div class="spacer-row"></div>
+
+        <div class="row"></div>
+      </div>
+
+      <div class="spacer-col"></div>
+      <div class="spacer-col"></div>
+      <div class="spacer-col"></div>
+
+      <div class="col">
+        <div class="row">
+          <label for="paramAlfa">Угол α:</label>
+          <div class="value" id="paramAlfaValue">1.047</div>
+          <label for="paramAlfa">рад</label>
+        </div>
+        <input
+          type="range"
+          id="paramAlfa"
+          min="0"
+          max="1.571"
+          value="1.047"
+          step="0.001"
+        />
+
+        <div class="spacer-row"></div>
+
+        <div class="row">
+          <label for="paramBetta">Угол β:</label>
+          <div class="value" id="paramBettaValue">0.785</div>
+          <label for="paramBetta">рад</label>
+        </div>
+        <input
+          type="range"
+          id="paramBetta"
+          min="0"
+          max="1.571"
+          value="0.785"
+          step="0.001"
+        />
+      </div>
+
+      <div class="spacer-col"></div>
+
+      <div class="col">
+        <div class="row">
+          <label for="paramGamma">Угол γ:</label>
+          <div class="value" id="paramGammaValue">0</div>
+          <label for="paramGamma">рад</label>
+        </div>
+        <input
+          type="range"
+          id="paramGamma"
+          min="0"
+          max="1.571"
+          value="0"
+          step="0.001"
+        />
+
+        <div class="spacer-row"></div>
+
+        <div class="row">
+          <label for="paramRo">Радиус ρ:</label>
+          <div class="value" id="paramRoValue">1</div>
+          <label for="paramRo">мм</label>
+        </div>
+        <input
+          type="range"
+          id="paramRo"
+          min="0"
+          max="3"
+          value="1"
+          step="0.001"
+        />
       </div>
     </div>
 
