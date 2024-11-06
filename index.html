@@ -15,7 +15,9 @@
     <div class="control-panel">
       <div class="col">
         <div class="row">
-          <label for="paramChi">Колебания χ:</label>
+          <label for="paramChi" title="Частота колебаний резца"
+            >Колебания χ:</label
+          >
           <div class="value" id="paramChiValue">9</div>
           <label for="paramChi">Гц</label>
         </div>
@@ -31,7 +33,9 @@
         <div class="spacer-row"></div>
 
         <div class="row">
-          <label for="paramOmega">Вращение ω:</label>
+          <label for="paramOmega" title="Частота вращения заготовки"
+            >Вращение ω:</label
+          >
           <div class="value" id="paramOmegaValue">8</div>
           <label for="paramOmega">об/с</label>
         </div>
@@ -49,7 +53,11 @@
 
       <div class="col">
         <div class="row">
-          <label for="paramAmplutuda">Амплитуда A:</label>
+          <label
+            for="paramAmplutuda"
+            title="Амплитуда колебаний резца относительно заготовки"
+            >Амплитуда A:</label
+          >
           <div class="value" id="paramAmplutudaValue">1</div>
           <label for="paramAmplutuda">мм</label>
         </div>
@@ -65,7 +73,7 @@
         <div class="spacer-row"></div>
 
         <div class="row">
-          <label for="paramS">Подача s:</label>
+          <label for="paramS" title="Скорость подачи резца">Подача s:</label>
           <div class="value" id="paramSValue">1</div>
           <label for="paramS">мм/с</label>
         </div>
@@ -85,27 +93,51 @@
 
       <div class="col">
         <div class="row">
-          <label for="canvasWidth">Ширина картинки:</label>
+          <label
+            for="canvasWidth"
+            title="Ширина рисуемой области, от 100 до 1200"
+            >Ширина картинки:</label
+          >
           <div class="value" id="canvasWidthValue">450</div>
           <label for="canvasWidth">px</label>
         </div>
-        <input type="range" id="canvasWidth" min="100" max="1200" value="450" />
+        <input
+          type="range"
+          id="canvasWidth"
+          min="100"
+          max="1200"
+          value="450"
+          step="2"
+        />
 
         <div class="spacer-row"></div>
 
         <div class="row">
-          <label for="canvasHeight">Высота картинки:</label>
+          <label
+            for="canvasHeight"
+            title="Высота рисуемой области, от 100 до 800"
+            >Высота картинки:</label
+          >
           <div class="value" id="canvasHeightValue">300</div>
           <label for="canvasHeight">px</label>
         </div>
-        <input type="range" id="canvasHeight" min="100" max="800" value="300" />
+        <input
+          type="range"
+          id="canvasHeight"
+          min="100"
+          max="800"
+          value="300"
+          step="2"
+        />
       </div>
 
       <div class="spacer-col"></div>
 
       <div class="col">
         <div class="row">
-          <label for="paramX0">Смещение по X:</label>
+          <label for="paramX0" title="Смещение отрисовываемого участка по оси Х"
+            >Смещение по X:</label
+          >
           <div class="value" id="paramX0Value">100</div>
           <label for="paramX0">мм</label>
         </div>
@@ -114,7 +146,9 @@
         <div class="spacer-row"></div>
 
         <div class="row">
-          <label for="paramY0">Смещение по Y:</label>
+          <label for="paramY0" title="Смещение отрисовываемого участка по оси Y"
+            >Смещение по Y:</label
+          >
           <div class="value" id="paramY0Value">0</div>
           <label for="paramY0">мм</label>
         </div>
@@ -125,7 +159,11 @@
 
       <div class="col">
         <div class="row">
-          <label for="paramScale">Масштаб:</label>
+          <label
+            for="paramScale"
+            title="Масштабный фактор рисования изображения"
+            >Масштаб:</label
+          >
           <div class="value" id="paramScaleValue">0.1</div>
         </div>
         <input
@@ -148,7 +186,11 @@
 
       <div class="col">
         <div class="row">
-          <label for="paramAlfa">Угол α:</label>
+          <label
+            for="paramAlfa"
+            title="Угол наклона главной режущей кромки резца"
+            >Угол α:</label
+          >
           <div class="value" id="paramAlfaValue">1.047</div>
           <label for="paramAlfa">рад</label>
         </div>
@@ -164,7 +206,11 @@
         <div class="spacer-row"></div>
 
         <div class="row">
-          <label for="paramBetta">Угол β:</label>
+          <label
+            for="paramBetta"
+            title="Угол наклона вспомогательной режущей кромки резца"
+            >Угол β:</label
+          >
           <div class="value" id="paramBettaValue">0.785</div>
           <label for="paramBetta">рад</label>
         </div>
@@ -182,7 +228,9 @@
 
       <div class="col">
         <div class="row">
-          <label for="paramGamma">Угол γ:</label>
+          <label for="paramGamma" title="Угол наклона самого резца"
+            >Угол γ:</label
+          >
           <div class="value" id="paramGammaValue">0</div>
           <label for="paramGamma">рад</label>
         </div>
@@ -198,7 +246,9 @@
         <div class="spacer-row"></div>
 
         <div class="row">
-          <label for="paramRo">Радиус ρ:</label>
+          <label for="paramRo" title="Радиус скругления вершины резца"
+            >Радиус ρ:</label
+          >
           <div class="value" id="paramRoValue">1</div>
           <label for="paramRo">мм</label>
         </div>
