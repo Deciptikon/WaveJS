@@ -146,7 +146,7 @@ function model(j, i, data, geometry, support, resez) {
     }
   }
 
-  let red = Amin * 100;
+  let red = Amin * 100 + 128;
 
   return `rgb(${red}, ${red}, ${red})`;
 
