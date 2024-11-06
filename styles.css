@@ -22,17 +22,28 @@ canvas {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   z-index: 10;
 }
-.control-panel .group {
+
+.col {
   display: flex;
   flex-direction: column; /* Выравнивание параметров в столбик */
   margin-right: 20px; /* Отступ между группами */
 }
+.row {
+  display: flex;
+  flex-direction: row; /* Выравнивание параметров в строку */
+  margin-top: 5px; /* Отступ над строкой */
+}
+
 .control-panel label {
   margin: 0;
 }
 .control-panel .value {
-  margin: 0 0 5px 0; /* Отступ между значением и ползунком */
+  margin: 0 0 5px 5px; /* Отступ между значением и ползунком */
 }
-.spacer {
+
+.spacer-col {
   width: 20px; /* Ширина пространства между параметрами */
+}
+.spacer-row {
+  height: 10px; /* Ширина пространства между параметрами */
 }
