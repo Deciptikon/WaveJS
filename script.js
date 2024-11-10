@@ -1,5 +1,9 @@
+import { GridCoordHandler } from "./GridCoordHandler.js";
+
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
+
+const colorWhite = `rgb(${255}, ${255}, ${255})`;
 
 // параметры ==========================================================
 const paramChiInput = document.getElementById("paramChi");
@@ -46,6 +50,12 @@ const paramRoValue = document.getElementById("paramRoValue");
 // Устанавливаем начальные размеры канваса на всю страницу
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
+
+let col = 0;
+let isFirstDraw = true;
+let animationFrameId = null;
+
+let gridHandler = new GridCoordHandler(5, 5);
 
 // Функция для обновления параметров и перерисовки канваса
 function updateCanvas() {
@@ -94,12 +104,121 @@ function updateCanvas() {
   paramGammaValue.textContent = paramGamma;
   paramRoValue.textContent = paramRo;
 
-  draw(
+  //draw(
+  //  [paramChi, paramOmega, paramAmplutuda, paramS],
+  //  [canvasWidth, canvasHeight, paramX0, paramY0, paramScale],
+  //  [paramR, paramr, paramMK],
+  //  [paramAlfa, paramBetta, paramGamma, paramRo]
+  //);
+  isFirstDraw = true;
+  drawStep(
     [paramChi, paramOmega, paramAmplutuda, paramS],
     [canvasWidth, canvasHeight, paramX0, paramY0, paramScale],
     [paramR, paramr, paramMK],
     [paramAlfa, paramBetta, paramGamma, paramRo]
   );
+}
+
+function drawStep(data, geometry, support, resez) {
+  if (isFirstDraw) {
+    isFirstDraw = false;
+    if (animationFrameId) {
+      cancelAnimationFrame(animationFrameId);
+      animationFrameId = null;
+    }
+
+    firstDraw(data, geometry, support, resez);
+    drawColorField(colorWhite, geometry);
+  } else {
+    nextDraw(data, geometry, support, resez);
+    drawColorField(colorWhite, geometry);
+  }
+
+  if (gridHandler.isFinish()) {
+    return;
+  }
+  animationFrameId = requestAnimationFrame(() =>
+    drawStep(data, geometry, support, resez)
+  );
+}
+
+function firstDraw(data, geometry, support, resez) {
+  let [canvasWidth, canvasHeight] = geometry; //деструктурируем первые элементы
+
+  col = 0;
+  gridHandler = new GridCoordHandler(canvasHeight, canvasWidth);
+  console.log(col);
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height); // Очищаем канвас
+  const centerX = canvas.width / 2; // Центр по оси X
+  const centerY = canvas.height / 2 - 60; // Центр по оси Y (уменьшаем на высоту панели)
+
+  draw2(
+    gridHandler.getGrid(),
+    gridHandler.getStep(),
+    data,
+    geometry,
+    support,
+    resez
+  );
+}
+
+function nextDraw(data, geometry, support, resez) {
+  let [canvasWidth, canvasHeight] = geometry; //деструктурируем первые элементы
+
+  col += 20;
+  gridHandler.updateGrid();
+  console.log(gridHandler.getGrid().length);
+
+  //ctx.clearRect(0, 0, canvas.width, canvas.height); // Очищаем канвас
+  const centerX = canvas.width / 2; // Центр по оси X
+  const centerY = canvas.height / 2 - 60; // Центр по оси Y (уменьшаем на высоту панели)
+
+  draw2(
+    gridHandler.getGridShift(),
+    gridHandler.getStep(),
+    data,
+    geometry,
+    support,
+    resez
+  );
+}
+
+function drawColorField(color, geometry) {
+  let [canvasWidth, canvasHeight] = geometry;
+  let h = 60;
+
+  ctx.fillStyle = color;
+
+  if (canvasWidth < canvas.width) {
+    let s = (canvas.width - canvasWidth) / 2;
+    ctx.fillRect(0, 0, s, canvas.height);
+    ctx.fillRect(canvas.width - s, 0, s, canvas.height);
+  }
+  if (canvasHeight < canvas.height) {
+    let p = (canvas.height - canvasHeight) / 2;
+    ctx.fillRect(0, 0, canvas.width, p + h);
+    ctx.fillRect(0, canvas.height - p + h, canvas.width, p - h);
+  }
+}
+
+// Функция для рисования на канвасе
+function draw2(grid, step, data, geometry, support, resez) {
+  let [canvasWidth, canvasHeight] = geometry; //деструктурируем первые элементы
+
+  const centerX = canvas.width / 2; // Центр по оси X
+  const centerY = canvas.height / 2 + 60; // Центр по оси Y (уменьшаем на высоту панели)
+
+  grid.forEach((point) => {
+    const color = model(point.x, point.y, data, geometry, support, resez); // Используем координаты пикселя
+    ctx.fillStyle = color;
+    ctx.fillRect(
+      centerX - canvasWidth / 2 + point.x,
+      centerY - canvasHeight / 2 + point.y,
+      step,
+      step
+    );
+  });
 }
 
 // Функция для рисования на канвасе
@@ -108,7 +227,6 @@ function draw(data, geometry, support, resez) {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height); // Очищаем канвас
 
-  // Рисуем прямоугольник по пикселям
   const centerX = canvas.width / 2; // Центр по оси X
   const centerY = canvas.height / 2 - 60; // Центр по оси Y (уменьшаем на высоту панели)
 
@@ -196,13 +314,6 @@ function model(j, i, data, geometry, support, resez) {
   let red = Amin * 100 + 128;
 
   return `rgb(${red}, ${red}, ${red})`;
-
-  //const red = Math.floor(
-  //Math.abs(Math.sin(x * (chi / 100) + y * (omega / 100))) * 255
-  //);
-  //const g = Math.floor(Math.abs(Math.cos(y * (omega / 100))) * 255);
-  //const b = Math.floor(Math.abs(Math.sin((x + y) * 0.01)) * 255);
-  //return `rgb(${red}, ${red}, ${red})`;
 }
 
 // Обновляем канвас при изменении ползунков
