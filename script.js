@@ -54,15 +54,12 @@ canvas.height = window.innerHeight;
 const centerX = canvas.width / 2; // Центр по оси X
 const centerY = canvas.height / 2 + 60; // Центр по оси Y (уменьшаем на высоту панели)
 
-let col = 0;
 let isFirstDraw = true;
 let animationFrameId = null;
 
 let gridHandler = new GridCoordHandler(5, 5, ctx, [centerY, centerX]);
 
-// Функция для обновления параметров и перерисовки канваса
 function updateCanvas() {
-  // Обновляем значения параметров и отображение
   const paramChi = paramChiInput.value;
   const paramOmega = paramOmegaInput.value;
   const paramAmplutuda = paramAmplutudaInput.value;
@@ -107,12 +104,6 @@ function updateCanvas() {
   paramGammaValue.textContent = paramGamma;
   paramRoValue.textContent = paramRo;
 
-  //draw(
-  //  [paramChi, paramOmega, paramAmplutuda, paramS],
-  //  [canvasWidth, canvasHeight, paramX0, paramY0, paramScale],
-  //  [paramR, paramr, paramMK],
-  //  [paramAlfa, paramBetta, paramGamma, paramRo]
-  //);
   isFirstDraw = true;
   drawStep(
     [paramChi, paramOmega, paramAmplutuda, paramS],
@@ -146,14 +137,14 @@ function drawStep(data, geometry, support, resez) {
 }
 
 function firstDraw(data, geometry, support, resez) {
-  let [canvasWidth, canvasHeight] = geometry; //деструктурируем первые элементы
+  let [canvasWidth, canvasHeight] = geometry;
 
   gridHandler = new GridCoordHandler(canvasHeight, canvasWidth, ctx, [
     centerY,
     centerX,
   ]);
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height); // Очищаем канвас
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   gridHandler.firstDrawGrid(model, data, geometry, support, resez);
 }
 
@@ -179,45 +170,6 @@ function drawColorField(color, geometry) {
     let p = (canvas.height - canvasHeight) / 2;
     ctx.fillRect(0, 0, canvas.width, p + h);
     ctx.fillRect(0, canvas.height - p + h, canvas.width, p - h);
-  }
-}
-
-// Функция для рисования на канвасе
-function draw2(grid, step, data, geometry, support, resez) {
-  let [canvasWidth, canvasHeight] = geometry; //деструктурируем первые элементы
-
-  grid.forEach((point) => {
-    const color = model(point.x, point.y, data, geometry, support, resez); // Используем координаты пикселя
-    ctx.fillStyle = color;
-    ctx.fillRect(
-      centerX - canvasWidth / 2 + point.x,
-      centerY - canvasHeight / 2 + point.y,
-      step,
-      step
-    );
-  });
-}
-
-// Функция для рисования на канвасе
-function draw(data, geometry, support, resez) {
-  let [canvasWidth, canvasHeight] = geometry; //деструктурируем первые элементы
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height); // Очищаем канвас
-
-  const centerX = canvas.width / 2; // Центр по оси X
-  const centerY = canvas.height / 2 - 60; // Центр по оси Y (уменьшаем на высоту панели)
-
-  for (let x = 0; x < canvasWidth; x++) {
-    for (let y = 0; y < canvasHeight; y++) {
-      const color = model(x, y, data, geometry, support, resez); // Используем координаты пикселя
-      ctx.fillStyle = color;
-      ctx.fillRect(
-        centerX - canvasWidth / 2 + x,
-        centerY - canvasHeight / 2 + y,
-        1,
-        1
-      ); // Рисуем пиксель
-    }
   }
 }
 
@@ -255,7 +207,6 @@ function fiQ(x, y, x0, y0) {
   }
 }
 
-// Пример функции для изменения цвета в зависимости от координат
 function model(j, i, data, geometry, support, resez) {
   let [chi, omega, A, s] = data;
   let [W, H, x0, y0, scale] = geometry;
@@ -293,7 +244,6 @@ function model(j, i, data, geometry, support, resez) {
   return `rgb(${red}, ${red}, ${red})`;
 }
 
-// Обновляем канвас при изменении ползунков
 paramChiInput.addEventListener("input", updateCanvas);
 paramOmegaInput.addEventListener("input", updateCanvas);
 
@@ -314,5 +264,4 @@ paramBettaInput.addEventListener("input", updateCanvas);
 paramGammaInput.addEventListener("input", updateCanvas);
 paramRoInput.addEventListener("input", updateCanvas);
 
-// Вызываем начальную отрисовку
 updateCanvas();
