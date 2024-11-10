@@ -51,11 +51,14 @@ const paramRoValue = document.getElementById("paramRoValue");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+const centerX = canvas.width / 2; // Центр по оси X
+const centerY = canvas.height / 2 + 60; // Центр по оси Y (уменьшаем на высоту панели)
+
 let col = 0;
 let isFirstDraw = true;
 let animationFrameId = null;
 
-let gridHandler = new GridCoordHandler(5, 5);
+let gridHandler = new GridCoordHandler(5, 5, ctx, [centerY, centerX]);
 
 // Функция для обновления параметров и перерисовки канваса
 function updateCanvas() {
@@ -145,43 +148,20 @@ function drawStep(data, geometry, support, resez) {
 function firstDraw(data, geometry, support, resez) {
   let [canvasWidth, canvasHeight] = geometry; //деструктурируем первые элементы
 
-  col = 0;
-  gridHandler = new GridCoordHandler(canvasHeight, canvasWidth);
-  console.log(col);
+  gridHandler = new GridCoordHandler(canvasHeight, canvasWidth, ctx, [
+    centerY,
+    centerX,
+  ]);
 
   ctx.clearRect(0, 0, canvas.width, canvas.height); // Очищаем канвас
-  const centerX = canvas.width / 2; // Центр по оси X
-  const centerY = canvas.height / 2 - 60; // Центр по оси Y (уменьшаем на высоту панели)
-
-  draw2(
-    gridHandler.getGrid(),
-    gridHandler.getStep(),
-    data,
-    geometry,
-    support,
-    resez
-  );
+  gridHandler.firstDrawGrid(model, data, geometry, support, resez);
 }
 
 function nextDraw(data, geometry, support, resez) {
-  let [canvasWidth, canvasHeight] = geometry; //деструктурируем первые элементы
-
-  col += 20;
   gridHandler.updateGrid();
-  console.log(gridHandler.getGrid().length);
+  console.log(gridHandler.getStep());
 
-  //ctx.clearRect(0, 0, canvas.width, canvas.height); // Очищаем канвас
-  const centerX = canvas.width / 2; // Центр по оси X
-  const centerY = canvas.height / 2 - 60; // Центр по оси Y (уменьшаем на высоту панели)
-
-  draw2(
-    gridHandler.getGridShift(),
-    gridHandler.getStep(),
-    data,
-    geometry,
-    support,
-    resez
-  );
+  gridHandler.nextDrawGrid(model, data, geometry, support, resez);
 }
 
 function drawColorField(color, geometry) {
@@ -205,9 +185,6 @@ function drawColorField(color, geometry) {
 // Функция для рисования на канвасе
 function draw2(grid, step, data, geometry, support, resez) {
   let [canvasWidth, canvasHeight] = geometry; //деструктурируем первые элементы
-
-  const centerX = canvas.width / 2; // Центр по оси X
-  const centerY = canvas.height / 2 + 60; // Центр по оси Y (уменьшаем на высоту панели)
 
   grid.forEach((point) => {
     const color = model(point.x, point.y, data, geometry, support, resez); // Используем координаты пикселя
