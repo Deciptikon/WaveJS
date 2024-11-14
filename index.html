@@ -14,8 +14,10 @@
     <div class="control-panel">
       <div class="col">
         <div class="row">
-          <label for="paramChi" title="Частота колебаний резца"
-            >Колебания <b>χ</b>:</label
+          <label
+            for="paramChi"
+            title="Целая часть частоты относительных колебаний резца и заготовки"
+            >Целая часть <b>χ</b>:</label
           >
           <div class="value" id="paramChiValue">9</div>
           <label for="paramChi">Гц</label>
@@ -24,27 +26,29 @@
           type="range"
           id="paramChi"
           min="0"
-          max="10"
-          value="9"
-          step="0.01"
+          max="100"
+          value="39"
+          step="1"
         />
 
         <div class="spacer-row"></div>
 
         <div class="row">
-          <label for="paramOmega" title="Частота вращения заготовки"
-            >Вращение <b>ω</b>:</label
+          <label
+            for="paramPsi"
+            title="Дробная часть частоты относительных колебаний резца и заготовки"
+            >Дробная часть <b>ψ</b>:</label
           >
-          <div class="value" id="paramOmegaValue">8</div>
-          <label for="paramOmega">об/с</label>
+          <div class="value" id="paramPsiValue">8</div>
+          <label for="paramPsi">Гц</label>
         </div>
         <input
           type="range"
-          id="paramOmega"
+          id="paramPsi"
           min="0"
-          max="10"
-          value="8"
-          step="0.01"
+          max="1"
+          value="0.128"
+          step="0.001"
         />
       </div>
 
@@ -64,8 +68,8 @@
           type="range"
           id="paramAmplutuda"
           min="0"
-          max="10"
-          value="1"
+          max="1"
+          value="0.95"
           step="0.01"
         />
 
@@ -82,9 +86,9 @@
           type="range"
           id="paramS"
           min="0"
-          max="10"
+          max="2"
           value="1"
-          step="0.01"
+          step="0.001"
         />
       </div>
 

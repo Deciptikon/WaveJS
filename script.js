@@ -7,7 +7,7 @@ const colorWhite = `rgb(${255}, ${255}, ${255})`;
 
 // параметры ==========================================================
 const paramChiInput = document.getElementById("paramChi");
-const paramOmegaInput = document.getElementById("paramOmega");
+const paramPsiInput = document.getElementById("paramPsi");
 
 const paramAmplutudaInput = document.getElementById("paramAmplutuda");
 const paramSInput = document.getElementById("paramS");
@@ -28,7 +28,7 @@ const paramRoInput = document.getElementById("paramRo");
 
 // элементы ===========================================================
 const paramChiValue = document.getElementById("paramChiValue");
-const paramOmegaValue = document.getElementById("paramOmegaValue");
+const paramPsiValue = document.getElementById("paramPsiValue");
 
 const paramAmplutudaValue = document.getElementById("paramAmplutudaValue");
 const paramSValue = document.getElementById("paramSValue");
@@ -61,7 +61,7 @@ let gridHandler = new GridCoordHandler(5, 5, ctx, [centerY, centerX]);
 
 function updateCanvas() {
   const paramChi = paramChiInput.value;
-  const paramOmega = paramOmegaInput.value;
+  const paramPsi = paramPsiInput.value;
   const paramAmplutuda = paramAmplutudaInput.value;
   const paramS = paramSInput.value;
 
@@ -82,10 +82,16 @@ function updateCanvas() {
   const paramGamma = paramGammaInput.value;
   const paramRo = paramRoInput.value;
 
+  let fullRelationFreq = parseFloat(paramChi) + parseFloat(paramPsi);
+  let paramOmega = 1; // вращение заготовки
+  let paramFreq = paramOmega * fullRelationFreq;
+  console.log(
+    `paramFreq=${paramFreq}  |  paramChi=${paramChi}  |  paramPsi=${paramPsi}`
+  );
   // установка чисел в html
 
   paramChiValue.textContent = paramChi;
-  paramOmegaValue.textContent = paramOmega;
+  paramPsiValue.textContent = paramPsi;
 
   paramAmplutudaValue.textContent = paramAmplutuda;
   paramSValue.textContent = paramS;
@@ -106,7 +112,7 @@ function updateCanvas() {
 
   isFirstDraw = true;
   drawStep(
-    [paramChi, paramOmega, paramAmplutuda, paramS],
+    [paramFreq, paramOmega, paramAmplutuda, paramS],
     [canvasWidth, canvasHeight, paramX0, paramY0, paramScale],
     [paramR, paramr, paramMK],
     [paramAlfa, paramBetta, paramGamma, paramRo]
@@ -245,7 +251,7 @@ function model(j, i, data, geometry, support, resez) {
 }
 
 paramChiInput.addEventListener("input", updateCanvas);
-paramOmegaInput.addEventListener("input", updateCanvas);
+paramPsiInput.addEventListener("input", updateCanvas);
 
 paramAmplutudaInput.addEventListener("input", updateCanvas);
 paramSInput.addEventListener("input", updateCanvas);
