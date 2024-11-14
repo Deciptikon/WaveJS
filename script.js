@@ -85,9 +85,7 @@ function updateCanvas() {
   let fullRelationFreq = parseFloat(paramChi) + parseFloat(paramPsi);
   let paramOmega = 1; // вращение заготовки
   let paramFreq = paramOmega * fullRelationFreq;
-  console.log(
-    `paramFreq=${paramFreq}  |  paramChi=${paramChi}  |  paramPsi=${paramPsi}`
-  );
+
   // установка чисел в html
 
   paramChiValue.textContent = paramChi;
