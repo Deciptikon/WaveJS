@@ -152,11 +152,7 @@ function calculateStep(data, geometry, support, resez) {
   deltaTime = performance.now() - startTimer;
   console.log(`time = ${deltaTime}`);
 
-  let maxmin = getMaxMin(W, H, buffer);
-  //console.log(`max = ${maxmin.max}   min = ${maxmin.min}`);
-
-  drawGrid(W, H, maxmin);
-  drawGradientScale(50, 200, 30, 100, maxmin, 4, `Амплитуда, мм.`);
+  draw(W, H);
 
   if (!updateGrid()) {
     return;
@@ -180,9 +176,7 @@ function createWorker(params, W, H) {
   worker.onmessage = (event) => {
     buffer = event.data;
 
-    let maxmin = getMaxMin(W, H, buffer);
-    drawGrid(W, H, maxmin);
-    drawGradientScale(50, 200, 30, 100, maxmin, 4, `Амплитуда, мм.`);
+    draw(W, H);
 
     if (!updateGrid()) {
       return;
@@ -337,6 +331,22 @@ function drawGradientScale(
     rectX + rectWidth + 3,
     rectY + rectHeight - 2
   );
+}
+
+function draw(W, H) {
+  let maxmin = getMaxMin(W, H, buffer);
+  drawGrid(W, H, maxmin);
+
+  let xg = centerX - W / 2 - 150;
+  let isLeft = false;
+  if (xg < 30) {
+    xg = 30;
+  }
+  if (centerX - W / 2 < 30) isLeft = true;
+  let yg = centerY - H / 2;
+  if (isLeft) yg -= 120;
+  if (yg < 160) yg = 160;
+  drawGradientScale(xg, yg, 30, 100, maxmin, 4, `Амплитуда, мм.`);
 }
 
 paramChiInput.addEventListener("input", updateCanvas);
