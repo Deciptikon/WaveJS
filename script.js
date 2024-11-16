@@ -7,6 +7,8 @@ const ctx = canvas.getContext("2d");
 
 const colorWhite = `rgb(${255}, ${255}, ${255})`;
 
+const favicon = document.getElementById("favicon");
+
 // параметры ==========================================================
 const paramChiInput = document.getElementById("paramChi");
 const paramPsiInput = document.getElementById("paramPsi");
@@ -119,6 +121,7 @@ function updateCanvas() {
   paramRoValue.textContent = paramRo;
 
   isFirstDraw = true;
+  setFavicon(1);
 
   calculateStep(
     [paramFreq, paramOmega, paramAmplutuda, paramS],
@@ -176,6 +179,7 @@ function createWorker(params, W, H) {
     draw(W, H);
 
     if (!updateGrid()) {
+      setFavicon(0);
       return;
     }
     createWorker(params, W, H);
@@ -184,6 +188,15 @@ function createWorker(params, W, H) {
   worker.onerror = (error) => {
     console.error("Ошибка в воркере:", error);
   };
+}
+
+function setFavicon(num) {
+  if (num === 0) {
+    favicon.href = "favicon0.png";
+  }
+  if (num === 1) {
+    favicon.href = "favicon1.png";
+  }
 }
 
 function firstStep(data, geometry, support, resez) {
