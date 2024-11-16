@@ -120,8 +120,6 @@ function updateCanvas() {
 
   isFirstDraw = true;
 
-  console.log(`W = ${W} | H = ${H}`);
-
   calculateStep(
     [paramFreq, paramOmega, paramAmplutuda, paramS],
     [W, H, paramX0, paramY0, paramScale],
@@ -150,7 +148,6 @@ function calculateStep(data, geometry, support, resez) {
     nextStep(data, geometry, support, resez);
   }
   deltaTime = performance.now() - startTimer;
-  console.log(`time = ${deltaTime}`);
 
   draw(W, H);
 
