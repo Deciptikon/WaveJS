@@ -240,11 +240,9 @@ function updateGrid() {
 
   if (globalStep < 1) {
     globalStep = 1;
-    console.log(`updateGrid = false`);
     return false;
   }
   globalSizeGrid *= 2;
-  console.log(`updateGrid = true`);
   return true;
 }
 
