@@ -64,5 +64,5 @@ export function model(j, i, data, geometry, support, resez) {
     }
   }
 
-  return Amin * 100 + 128;
+  return Amin;
 }

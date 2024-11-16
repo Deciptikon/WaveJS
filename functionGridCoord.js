@@ -4,7 +4,6 @@ function baseGrid(
   step, //шаг сетки (в клетках)
   shift, //сдвиг сетки (в клетках)
   maxIndex, //количество шагов
-  //sizeGrid, //размеры сетки [maxH, maxW] (в клетках)
   buffer, //буфер сетки
   modelFunc, //callback-function
   data,
@@ -65,7 +64,6 @@ export function nextGrid(
   support,
   resez
 ) {
-  //console.log(`---> nextGrid | step=${step} | sizeGrid=${maxIndex}`);
   // shift X
   baseGrid(
     step,

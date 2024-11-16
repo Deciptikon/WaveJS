@@ -58,8 +58,8 @@ export function toImageData(context, maxmin, maxW, maxH, buffer) {
 }
 
 export function getMaxMin(maxW, maxH, buffer) {
-  const maxVal = getValue(0, 0, maxW, maxH, buffer);
-  const minVal = getValue(0, 0, maxW, maxH, buffer);
+  let maxVal = getValue(0, 0, maxW, maxH, buffer);
+  let minVal = getValue(0, 0, maxW, maxH, buffer);
   for (let i = 0; i < maxH; i++) {
     for (let j = 0; j < maxW; j++) {
       const value = getValue(i, j, maxW, maxH, buffer);

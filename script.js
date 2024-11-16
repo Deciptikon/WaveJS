@@ -1,10 +1,5 @@
 import { model } from "./functionModel.js";
-import {
-  toImageData,
-  getMaxMin,
-  getValue,
-  setValue,
-} from "./functionMatrix.js";
+import { getMaxMin, getValue } from "./functionMatrix.js";
 import { firstGrid, nextGrid } from "./functionGridCoord.js";
 
 const canvas = document.getElementById("canvas");
@@ -149,7 +144,9 @@ function calculateStep(data, geometry, support, resez) {
   const endTimer = performance.now();
   console.log(`time = ${endTimer - startTimer}`);
 
-  drawGrid(W, H);
+  let maxmin = getMaxMin(W, H, buffer);
+  console.log(`max = ${maxmin.max}   min = ${maxmin.min}`);
+  drawGrid(W, H, maxmin);
 
   if (!updateGrid()) {
     return;
@@ -183,15 +180,15 @@ function nextStep(data, geometry, support, resez) {
   );
 }
 
-function drawGrid(W, H) {
-  console.log(`drawGrid(W, H)`);
-  console.log(`W = ${W}   |   H = ${H}`);
+function drawGrid(W, H, maxmin) {
+  let ampl = maxmin.max - maxmin.min;
+  if (ampl === 0) return;
 
   for (let i = 0; i < H; i++) {
     for (let j = 0; j < W; j++) {
       let val = getValue(i, j, W, H, buffer);
-      //console.log(`val = ${val}`);
-      ctx.fillStyle = `rgb(${val}, ${val}, ${val})`;
+      let color = ((val - maxmin.min) / ampl) * 255;
+      ctx.fillStyle = `rgb(${color}, ${color}, ${color})`;
       ctx.fillRect(centerX - W / 2 + j, centerY - H / 2 + i, 1, 1);
     }
   }
