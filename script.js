@@ -145,8 +145,10 @@ function calculateStep(data, geometry, support, resez) {
   console.log(`time = ${endTimer - startTimer}`);
 
   let maxmin = getMaxMin(W, H, buffer);
-  console.log(`max = ${maxmin.max}   min = ${maxmin.min}`);
+  //console.log(`max = ${maxmin.max}   min = ${maxmin.min}`);
+
   drawGrid(W, H, maxmin);
+  drawGradientScale(50, 200, 30, 100, maxmin, 4, `Амплитуда, мм.`);
 
   if (!updateGrid()) {
     return;
@@ -192,6 +194,11 @@ function drawGrid(W, H, maxmin) {
       ctx.fillRect(centerX - W / 2 + j, centerY - H / 2 + i, 1, 1);
     }
   }
+
+  //обводка синяя
+  ctx.strokeStyle = "blue"; // Цвет линии
+  ctx.lineWidth = 1; // Толщина линии
+  ctx.strokeRect(centerX - W / 2 - 1, centerY - H / 2 - 1, W + 2, H + 2);
 }
 
 function updateGrid() {
@@ -205,6 +212,82 @@ function updateGrid() {
   globalSizeGrid *= 2;
   console.log(`updateGrid = true`);
   return true;
+}
+
+function drawGradientScale(
+  rectX,
+  rectY,
+  rectWidth,
+  rectHeight,
+  maximin,
+  precision,
+  nameGradient
+) {
+  let margin = 5;
+
+  ctx.font = "12px 'Times New Roman'";
+  let ht = parseInt(ctx.font, 12); //высота символа
+  let wt = 7; //ширина символа
+
+  ctx.clearRect(
+    rectX - margin,
+    rectY - margin,
+    rectWidth + 2 * margin,
+    rectHeight + 2 * margin
+  );
+  ctx.clearRect(
+    rectX - margin,
+    rectY - ht - margin - 10,
+    ctx.measureText(nameGradient).width + 2 * margin,
+    ht + 2 * margin
+  );
+  ctx.clearRect(
+    rectX + rectWidth - margin,
+    rectY - margin - 2,
+    50 + precision * wt + 2 * margin,
+    ht + 2 * margin
+  );
+  ctx.clearRect(
+    rectX + rectWidth - margin,
+    rectY + rectHeight - ht - margin,
+    50 + precision * wt + 2 * margin,
+    ht + 2 * margin
+  );
+
+  const gradient = ctx.createLinearGradient(0, rectY + rectHeight, 0, rectY);
+  gradient.addColorStop(0, "black"); // Нижняя часть
+  gradient.addColorStop(1, "white"); // Верхняя часть
+
+  //градиент
+  ctx.fillStyle = gradient;
+  ctx.fillRect(rectX, rectY, rectWidth, rectHeight);
+
+  //обводка синяя
+  ctx.strokeStyle = "blue"; // Цвет линии
+  ctx.lineWidth = 1; // Толщина линии
+  ctx.strokeRect(rectX - 1, rectY - 1, rectWidth + 2, rectHeight + 2);
+
+  ctx.fillStyle = "black";
+
+  // Верхний текст над градиентом
+  ctx.textAlign = "left";
+  ctx.fillText(nameGradient, rectX, rectY - 10);
+
+  // Текст сверху градиента
+  ctx.textAlign = "left";
+  ctx.fillText(
+    `max = ${maximin.max.toFixed(precision)}`,
+    rectX + rectWidth + 2,
+    rectY + 8
+  );
+
+  // Текст снизу градиента
+  ctx.textAlign = "left";
+  ctx.fillText(
+    `min = ${maximin.min.toFixed(precision)}`,
+    rectX + rectWidth + 2,
+    rectY + rectHeight - 2
+  );
 }
 
 paramChiInput.addEventListener("input", updateCanvas);
