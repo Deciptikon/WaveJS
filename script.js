@@ -63,6 +63,9 @@ let buffer = new Float32Array(10);
 let globalStep = 2;
 let globalSizeGrid = 2;
 
+let worker = null;
+let deltaTime = 0;
+
 function updateCanvas() {
   const paramChi = paramChiInput.value;
   const paramPsi = paramPsiInput.value;
@@ -136,14 +139,18 @@ function calculateStep(data, geometry, support, resez) {
       cancelAnimationFrame(animationFrameId);
       animationFrameId = null;
     }
+    if (worker != null) {
+      worker.terminate();
+    }
+
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     firstStep(data, geometry, support, resez);
   } else {
     nextStep(data, geometry, support, resez);
   }
-  const endTimer = performance.now();
-  console.log(`time = ${endTimer - startTimer}`);
+  deltaTime = performance.now() - startTimer;
+  console.log(`time = ${deltaTime}`);
 
   let maxmin = getMaxMin(W, H, buffer);
   //console.log(`max = ${maxmin.max}   min = ${maxmin.min}`);
@@ -154,9 +161,38 @@ function calculateStep(data, geometry, support, resez) {
   if (!updateGrid()) {
     return;
   }
+
+  if (deltaTime > 20) {
+    createWorker([data, geometry, support, resez], W, H);
+    return;
+  }
+
   animationFrameId = requestAnimationFrame(() =>
     calculateStep(data, geometry, support, resez)
   );
+}
+
+function createWorker(params, W, H) {
+  worker = new Worker("worker.js", { type: "module" });
+
+  worker.postMessage([buffer, globalStep, globalSizeGrid, params]);
+
+  worker.onmessage = (event) => {
+    buffer = event.data;
+
+    let maxmin = getMaxMin(W, H, buffer);
+    drawGrid(W, H, maxmin);
+    drawGradientScale(50, 200, 30, 100, maxmin, 4, `Амплитуда, мм.`);
+
+    if (!updateGrid()) {
+      return;
+    }
+    createWorker(params, W, H);
+  };
+
+  worker.onerror = (error) => {
+    console.error("Ошибка в воркере:", error);
+  };
 }
 
 function firstStep(data, geometry, support, resez) {
@@ -187,6 +223,17 @@ function drawGrid(W, H, maxmin) {
   let ampl = maxmin.max - maxmin.min;
   if (ampl === 0) return;
 
+  //обводка синяя
+  if (globalStep > 1) {
+    ctx.strokeStyle = "red"; // Цвет линии
+    ctx.lineWidth = 2; // Толщина линии
+    ctx.strokeRect(centerX - W / 2 - 1, centerY - H / 2 - 1, W + 2, H + 2);
+  } else {
+    ctx.strokeStyle = "blue"; // Цвет линии
+    ctx.lineWidth = 2; // Толщина линии
+    ctx.strokeRect(centerX - W / 2 - 1, centerY - H / 2 - 1, W + 2, H + 2);
+  }
+
   for (let i = 0; i < H; i++) {
     for (let j = 0; j < W; j++) {
       let val = getValue(i, j, W, H, buffer);
@@ -194,17 +241,6 @@ function drawGrid(W, H, maxmin) {
       ctx.fillStyle = `rgb(${color}, ${color}, ${color})`;
       ctx.fillRect(centerX - W / 2 + j, centerY - H / 2 + i, 1, 1);
     }
-  }
-
-  //обводка синяя
-  if (globalStep > 1) {
-    ctx.strokeStyle = "red"; // Цвет линии
-    ctx.lineWidth = 1; // Толщина линии
-    ctx.strokeRect(centerX - W / 2 - 1, centerY - H / 2 - 1, W + 2, H + 2);
-  } else {
-    ctx.strokeStyle = "blue"; // Цвет линии
-    ctx.lineWidth = 1; // Толщина линии
-    ctx.strokeRect(centerX - W / 2 - 1, centerY - H / 2 - 1, W + 2, H + 2);
   }
 }
 
@@ -272,11 +308,11 @@ function drawGradientScale(
 
   if (globalStep > 1) {
     ctx.strokeStyle = "red"; // Цвет линии
-    ctx.lineWidth = 1; // Толщина линии
+    ctx.lineWidth = 2; // Толщина линии
     ctx.strokeRect(rectX - 1, rectY - 1, rectWidth + 2, rectHeight + 2);
   } else {
     ctx.strokeStyle = "blue"; // Цвет линии
-    ctx.lineWidth = 1; // Толщина линии
+    ctx.lineWidth = 2; // Толщина линии
     ctx.strokeRect(rectX - 1, rectY - 1, rectWidth + 2, rectHeight + 2);
   }
 
