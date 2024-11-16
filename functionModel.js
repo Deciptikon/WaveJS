@@ -46,7 +46,7 @@ export function model(j, i, data, geometry, support, resez) {
 
   let lambda = L - (fi * s) / (2 * Math.PI);
 
-  let Amin = 1;
+  let Amin = 100;
   if (L < 0 || L > R - r) {
     return 0;
   }
