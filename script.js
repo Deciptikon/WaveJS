@@ -136,7 +136,8 @@ function calculateStep(data, geometry, support, resez) {
       cancelAnimationFrame(animationFrameId);
       animationFrameId = null;
     }
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     firstStep(data, geometry, support, resez);
   } else {
     nextStep(data, geometry, support, resez);
@@ -196,9 +197,15 @@ function drawGrid(W, H, maxmin) {
   }
 
   //обводка синяя
-  ctx.strokeStyle = "blue"; // Цвет линии
-  ctx.lineWidth = 1; // Толщина линии
-  ctx.strokeRect(centerX - W / 2 - 1, centerY - H / 2 - 1, W + 2, H + 2);
+  if (globalStep > 1) {
+    ctx.strokeStyle = "red"; // Цвет линии
+    ctx.lineWidth = 1; // Толщина линии
+    ctx.strokeRect(centerX - W / 2 - 1, centerY - H / 2 - 1, W + 2, H + 2);
+  } else {
+    ctx.strokeStyle = "blue"; // Цвет линии
+    ctx.lineWidth = 1; // Толщина линии
+    ctx.strokeRect(centerX - W / 2 - 1, centerY - H / 2 - 1, W + 2, H + 2);
+  }
 }
 
 function updateGrid() {
@@ -229,25 +236,26 @@ function drawGradientScale(
   let ht = parseInt(ctx.font, 12); //высота символа
   let wt = 7; //ширина символа
 
-  ctx.clearRect(
+  ctx.fillStyle = "white";
+  ctx.fillRect(
     rectX - margin,
     rectY - margin,
     rectWidth + 2 * margin,
     rectHeight + 2 * margin
   );
-  ctx.clearRect(
+  ctx.fillRect(
     rectX - margin,
     rectY - ht - margin - 10,
     ctx.measureText(nameGradient).width + 2 * margin,
     ht + 2 * margin
   );
-  ctx.clearRect(
+  ctx.fillRect(
     rectX + rectWidth - margin,
     rectY - margin - 2,
     50 + precision * wt + 2 * margin,
     ht + 2 * margin
   );
-  ctx.clearRect(
+  ctx.fillRect(
     rectX + rectWidth - margin,
     rectY + rectHeight - ht - margin,
     50 + precision * wt + 2 * margin,
@@ -262,10 +270,15 @@ function drawGradientScale(
   ctx.fillStyle = gradient;
   ctx.fillRect(rectX, rectY, rectWidth, rectHeight);
 
-  //обводка синяя
-  ctx.strokeStyle = "blue"; // Цвет линии
-  ctx.lineWidth = 1; // Толщина линии
-  ctx.strokeRect(rectX - 1, rectY - 1, rectWidth + 2, rectHeight + 2);
+  if (globalStep > 1) {
+    ctx.strokeStyle = "red"; // Цвет линии
+    ctx.lineWidth = 1; // Толщина линии
+    ctx.strokeRect(rectX - 1, rectY - 1, rectWidth + 2, rectHeight + 2);
+  } else {
+    ctx.strokeStyle = "blue"; // Цвет линии
+    ctx.lineWidth = 1; // Толщина линии
+    ctx.strokeRect(rectX - 1, rectY - 1, rectWidth + 2, rectHeight + 2);
+  }
 
   ctx.fillStyle = "black";
 
@@ -277,7 +290,7 @@ function drawGradientScale(
   ctx.textAlign = "left";
   ctx.fillText(
     `max = ${maximin.max.toFixed(precision)}`,
-    rectX + rectWidth + 2,
+    rectX + rectWidth + 3,
     rectY + 8
   );
 
@@ -285,7 +298,7 @@ function drawGradientScale(
   ctx.textAlign = "left";
   ctx.fillText(
     `min = ${maximin.min.toFixed(precision)}`,
-    rectX + rectWidth + 2,
+    rectX + rectWidth + 3,
     rectY + rectHeight - 2
   );
 }
