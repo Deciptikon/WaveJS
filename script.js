@@ -1,4 +1,11 @@
-import { GridCoordHandler } from "./GridCoordHandler.js";
+import { model } from "./functionModel.js";
+import {
+  toImageData,
+  getMaxMin,
+  getValue,
+  setValue,
+} from "./functionMatrix.js";
+import { firstGrid, nextGrid } from "./functionGridCoord.js";
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
@@ -57,7 +64,9 @@ const centerY = canvas.height / 2 + 60; // Центр по оси Y (умень�
 let isFirstDraw = true;
 let animationFrameId = null;
 
-let gridHandler = new GridCoordHandler(5, 5, ctx, [centerY, centerX]);
+let buffer = new Float32Array(10);
+let globalStep = 2;
+let globalSizeGrid = 2;
 
 function updateCanvas() {
   const paramChi = paramChiInput.value;
@@ -75,6 +84,9 @@ function updateCanvas() {
   const paramr = 100;
 
   const paramMK = 10; //это не изменяемый параметр
+
+  let W = parseInt(canvasWidth, 10);
+  let H = parseInt(canvasHeight, 10);
 
   //параметры резца
   const paramAlfa = paramAlfaInput.value;
@@ -109,143 +121,93 @@ function updateCanvas() {
   paramRoValue.textContent = paramRo;
 
   isFirstDraw = true;
-  drawStep(
+
+  console.log(`W = ${W} | H = ${H}`);
+
+  calculateStep(
     [paramFreq, paramOmega, paramAmplutuda, paramS],
-    [canvasWidth, canvasHeight, paramX0, paramY0, paramScale],
+    [W, H, paramX0, paramY0, paramScale],
     [paramR, paramr, paramMK],
     [paramAlfa, paramBetta, paramGamma, paramRo]
   );
 }
 
-function drawStep(data, geometry, support, resez) {
+function calculateStep(data, geometry, support, resez) {
+  let [W, H] = geometry;
+  const startTimer = performance.now();
   if (isFirstDraw) {
     isFirstDraw = false;
     if (animationFrameId) {
       cancelAnimationFrame(animationFrameId);
       animationFrameId = null;
     }
-
-    firstDraw(data, geometry, support, resez);
-    drawColorField(colorWhite, geometry);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    firstStep(data, geometry, support, resez);
   } else {
-    nextDraw(data, geometry, support, resez);
-    drawColorField(colorWhite, geometry);
+    nextStep(data, geometry, support, resez);
   }
+  const endTimer = performance.now();
+  console.log(`time = ${endTimer - startTimer}`);
 
-  if (gridHandler.isFinish()) {
+  drawGrid(W, H);
+
+  if (!updateGrid()) {
     return;
   }
   animationFrameId = requestAnimationFrame(() =>
-    drawStep(data, geometry, support, resez)
+    calculateStep(data, geometry, support, resez)
   );
 }
 
-function firstDraw(data, geometry, support, resez) {
-  let [canvasWidth, canvasHeight] = geometry;
+function firstStep(data, geometry, support, resez) {
+  let [W, H] = geometry;
 
-  gridHandler = new GridCoordHandler(canvasHeight, canvasWidth, ctx, [
-    centerY,
-    centerX,
-  ]);
+  buffer = new Float32Array(W * H);
+  let exp2 = Math.ceil(Math.log2(Math.max(W, H))); //бинарный масштаб сетки
+  globalStep = Math.pow(2, exp2); //текущий шаг
+  globalSizeGrid = 1;
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  gridHandler.firstDrawGrid(model, data, geometry, support, resez);
+  firstGrid(model, globalStep, buffer, data, geometry, support, resez);
 }
 
-function nextDraw(data, geometry, support, resez) {
-  gridHandler.updateGrid();
-  console.log(gridHandler.getStep());
-
-  gridHandler.nextDrawGrid(model, data, geometry, support, resez);
+function nextStep(data, geometry, support, resez) {
+  nextGrid(
+    model,
+    globalStep,
+    globalSizeGrid,
+    buffer,
+    data,
+    geometry,
+    support,
+    resez
+  );
 }
 
-function drawColorField(color, geometry) {
-  let [canvasWidth, canvasHeight] = geometry;
-  let h = 60;
+function drawGrid(W, H) {
+  console.log(`drawGrid(W, H)`);
+  console.log(`W = ${W}   |   H = ${H}`);
 
-  ctx.fillStyle = color;
-
-  if (canvasWidth < canvas.width) {
-    let s = (canvas.width - canvasWidth) / 2;
-    ctx.fillRect(0, 0, s, canvas.height);
-    ctx.fillRect(canvas.width - s, 0, s, canvas.height);
-  }
-  if (canvasHeight < canvas.height) {
-    let p = (canvas.height - canvasHeight) / 2;
-    ctx.fillRect(0, 0, canvas.width, p + h);
-    ctx.fillRect(0, canvas.height - p + h, canvas.width, p - h);
-  }
-}
-
-function f(x, alfa, betta, gamma, ro) {
-  alfa -= gamma;
-  betta += gamma;
-
-  if (x < -(ro * Math.sin(betta))) {
-    return -x * Math.tan(betta) + ro * (1 - 1 / Math.cos(betta));
-  } else if (x < ro * Math.sin(alfa)) {
-    return ro * (1 - Math.sqrt(1 - Math.pow(x / ro, 2)));
-  } else {
-    return x * Math.tan(alfa) + ro * (1 - 1 / Math.cos(alfa));
-  }
-}
-
-function dist(x, y, x0, y0) {
-  return Math.sqrt(Math.pow(x - x0, 2) + Math.pow(y - y0, 2));
-}
-
-function lenQ(x, y, x0, y0, R) {
-  return R - dist(x, y, x0, y0);
-}
-
-function fiQ(x, y, x0, y0) {
-  let L = dist(x, y, x0, y0);
-  if (L === 0) {
-    return 0;
-  }
-
-  if (y - y0 < 0) {
-    return 2 * Math.PI - Math.acos((x - x0) / L);
-  } else {
-    return Math.acos((x - x0) / L);
-  }
-}
-
-function model(j, i, data, geometry, support, resez) {
-  let [chi, omega, A, s] = data;
-  let [W, H, x0, y0, scale] = geometry;
-  let [R, r, mk] = support;
-  let [alfa, betta, gamma, ro] = resez;
-
-  let x = Math.ceil(j - W / 2) * scale;
-  let y = Math.ceil(i - H / 2) * scale;
-
-  let L = lenQ(x, y, x0, y0, R);
-  let fi = fiQ(x, y, x0, y0);
-
-  let lambda = L - (fi * s) / (2 * Math.PI);
-
-  let Amin = 1;
-  if (L < 0 || L > R - r) {
-    return `rgb(${0}, ${0}, ${0})`;
-  }
-
-  let ns = Math.ceil(L / s);
-
-  for (let k = -mk; k < mk + 1; k++) {
-    let kk = ns + k;
-    let K = A * Math.sin(((fi + kk * 2 * Math.PI) * chi) / omega);
-    let Amp =
-      f(lambda - kk * s + K * Math.sin(gamma), alfa, betta, gamma, ro) +
-      K * Math.cos(gamma);
-    if (Amp < Amin) {
-      Amin = Amp;
+  for (let i = 0; i < H; i++) {
+    for (let j = 0; j < W; j++) {
+      let val = getValue(i, j, W, H, buffer);
+      //console.log(`val = ${val}`);
+      ctx.fillStyle = `rgb(${val}, ${val}, ${val})`;
+      ctx.fillRect(centerX - W / 2 + j, centerY - H / 2 + i, 1, 1);
     }
   }
+}
 
-  let red = Amin * 100 + 128;
+function updateGrid() {
+  globalStep /= 2;
 
-  return `rgb(${red}, ${red}, ${red})`;
+  if (globalStep < 1) {
+    globalStep = 1;
+    console.log(`updateGrid = false`);
+    return false;
+  }
+  globalSizeGrid *= 2;
+  console.log(`updateGrid = true`);
+  return true;
 }
 
 paramChiInput.addEventListener("input", updateCanvas);
