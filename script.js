@@ -241,8 +241,15 @@ function drawGrid(W, H, maxmin) {
   for (let i = 0; i < H; i++) {
     for (let j = 0; j < W; j++) {
       let val = getValue(i, j, W, H, buffer);
-      let color = ((val - maxmin.min) / ampl) * 255;
-      ctx.fillStyle = `rgb(${color}, ${color}, ${color})`;
+      let color = 128;
+      if (val === -9999) {
+        color = `rgb(${150}, ${100}, ${100})`;
+      } else {
+        let c = ((val - maxmin.min) / ampl) * 255;
+        color = `rgb(${c}, ${c}, ${c})`;
+      }
+
+      ctx.fillStyle = color;
       ctx.fillRect(centerX - W / 2 + j, centerY - H / 2 + i, 1, 1);
     }
   }

@@ -58,14 +58,31 @@ export function toImageData(context, maxmin, maxW, maxH, buffer) {
 }
 
 export function getMaxMin(maxW, maxH, buffer) {
-  let maxVal = getValue(0, 0, maxW, maxH, buffer);
-  let minVal = getValue(0, 0, maxW, maxH, buffer);
+  let maxVal = 0;
+  let minVal = 0;
+
+  //ищем валидные начальные значения
   for (let i = 0; i < maxH; i++) {
     for (let j = 0; j < maxW; j++) {
       const value = getValue(i, j, maxW, maxH, buffer);
-      if (value > maxVal) maxVal = value;
-      if (value < minVal) minVal = value;
+      if (!(value === -9999)) {
+        maxVal = getValue(i, j, maxW, maxH, buffer);
+        minVal = getValue(i, j, maxW, maxH, buffer);
+        break;
+      }
     }
   }
+
+  //обновляем максимум и минимум на основе начальных данных
+  for (let i = 0; i < maxH; i++) {
+    for (let j = 0; j < maxW; j++) {
+      const value = getValue(i, j, maxW, maxH, buffer);
+      if (!(value === -9999)) {
+        if (value > maxVal) maxVal = value;
+        if (value < minVal) minVal = value;
+      }
+    }
+  }
+
   return { max: maxVal, min: minVal };
 }

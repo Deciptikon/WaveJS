@@ -48,7 +48,7 @@ export function model(j, i, data, geometry, support, resez) {
 
   let Amin = 100;
   if (L < 0 || L > R - r) {
-    return 0;
+    return -9999;
   }
 
   let ns = Math.ceil(L / s);
