@@ -1,11 +1,24 @@
 import { model } from "./functionModel.js";
 import { getMaxMin, getValue } from "./functionMatrix.js";
 import { firstGrid, nextGrid } from "./functionGridCoord.js";
+import {
+  initScene,
+  addControls,
+  animate,
+  createHeightMap,
+} from "./heightmap.js";
 
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+const canvas2d = document.getElementById("canvas2d");
+const canvas3d = document.getElementById("canvas3d");
+canvas3d.style.display = "none";
+canvas2d.style.display = "block";
+
+const ctx = canvas2d.getContext("2d");
 
 const colorWhite = `rgb(${255}, ${255}, ${255})`;
+
+let { scene, camera, renderer } = initScene(canvas3d);
+let controls = addControls(camera, renderer);
 
 const favicon = document.getElementById("favicon");
 
@@ -23,6 +36,7 @@ const paramX0Input = document.getElementById("paramX0");
 const paramY0Input = document.getElementById("paramY0");
 
 const paramScaleInput = document.getElementById("paramScale");
+const switcher2D3D = document.getElementById("switcher2D3D");
 
 const paramAlfaInput = document.getElementById("paramAlfa");
 const paramBettaInput = document.getElementById("paramBetta");
@@ -52,11 +66,11 @@ const paramGammaValue = document.getElementById("paramGammaValue");
 const paramRoValue = document.getElementById("paramRoValue");
 
 // Устанавливаем начальные размеры канваса на всю страницу
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+canvas2d.width = window.innerWidth;
+canvas2d.height = window.innerHeight;
 
-const centerX = canvas.width / 2; // Центр по оси X
-const centerY = canvas.height / 2 + 60; // Центр по оси Y (уменьшаем на высоту панели)
+const centerX = canvas2d.width / 2; // Центр по оси X
+const centerY = canvas2d.height / 2 + 60; // Центр по оси Y (уменьшаем на высоту панели)
 
 let isFirstDraw = true;
 let animationFrameId = null;
@@ -67,6 +81,9 @@ let globalSizeGrid = 2;
 
 let worker = null;
 let deltaTime = 0;
+
+let is2D = true;
+let heightMap = null;
 
 function updateCanvas() {
   const paramChi = paramChiInput.value;
@@ -123,6 +140,11 @@ function updateCanvas() {
   isFirstDraw = true;
   setFavicon(1);
 
+  //canvas2d.style.display = "none";
+  //canvas2d.style.display = "block";
+  //testLibs(canvas3d);
+  //return;
+
   calculateStep(
     [paramFreq, paramOmega, paramAmplutuda, paramS],
     [W, H, paramX0, paramY0, paramScale],
@@ -145,14 +167,14 @@ function calculateStep(data, geometry, support, resez) {
     }
 
     ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, canvas2d.width, canvas2d.height);
     firstStep(data, geometry, support, resez);
   } else {
     nextStep(data, geometry, support, resez);
   }
   deltaTime = performance.now() - startTimer;
 
-  draw(W, H);
+  draw2D3D(W, H);
 
   if (!updateGrid()) {
     return;
@@ -176,7 +198,7 @@ function createWorker(params, W, H) {
   worker.onmessage = (event) => {
     buffer = event.data;
 
-    draw(W, H);
+    draw2D3D(W, H);
 
     if (!updateGrid()) {
       setFavicon(0);
@@ -364,6 +386,38 @@ function draw(W, H) {
   drawGradientScale(xg, yg, 30, 100, maxmin, 4, `Амплитуда, мм.`);
 }
 
+function draw2D3D(W, H) {
+  if (is2D) {
+    draw(W, H);
+  } else {
+    const existingMesh = scene.getObjectByName("heightMapMesh");
+    if (existingMesh) {
+      scene.remove(existingMesh);
+    }
+
+    const mesh = createHeightMap(buffer, W, H);
+    mesh.name = "heightMapMesh";
+    scene.add(mesh);
+    console.log("обновляем меш");
+  }
+}
+
+function switch2Dto3D() {
+  if (switcher2D3D.checked) {
+    console.log("Переключатель включен (3D режим)");
+    is2D = false;
+    canvas2d.style.display = "none";
+    canvas3d.style.display = "block";
+
+    animate(scene, camera, renderer, controls, !is2D);
+  } else {
+    console.log("Переключатель выключен (2D режим)");
+    is2D = true;
+    canvas3d.style.display = "none";
+    canvas2d.style.display = "block";
+  }
+}
+
 paramChiInput.addEventListener("input", updateCanvas);
 paramPsiInput.addEventListener("input", updateCanvas);
 
@@ -377,6 +431,7 @@ paramX0Input.addEventListener("input", updateCanvas);
 paramY0Input.addEventListener("input", updateCanvas);
 
 paramScaleInput.addEventListener("input", updateCanvas);
+switcher2D3D.addEventListener("change", switch2Dto3D);
 
 paramAlfaInput.addEventListener("input", updateCanvas);
 paramBettaInput.addEventListener("input", updateCanvas);
