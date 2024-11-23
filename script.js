@@ -363,8 +363,8 @@ function getParamsFromUrl() {
     X0: parseFloat(params.get("X0")) || 100,
     Y0: parseFloat(params.get("Y0")) || 0,
     Scale: parseFloat(params.get("Scale")) || 0.1,
-    Alfa: parseFloat(params.get("Alfa")) || 0.5,
-    Betta: parseFloat(params.get("Betta")) || 0.3,
+    Alfa: parseFloat(params.get("Alfa")) || 0.785,
+    Betta: parseFloat(params.get("Betta")) || 0.524,
     Gamma: parseFloat(params.get("Gamma")) || 0,
     Ro: parseFloat(params.get("Ro")) || 1,
   };
