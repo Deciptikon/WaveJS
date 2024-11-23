@@ -347,8 +347,70 @@ function draw(W, H) {
   let yg = centerY - H / 2;
   if (isLeft) yg -= 120;
   if (yg < 160) yg = 160;
-  console.log(`draw: xg = ${xg}, yg = ${yg}`);
-  drawGradientScale(xg, yg, 30, 100, maxmin, 4, `Амплитуда, мм.`);
+
+  //drawGradientScale(xg, yg, 30, 100, maxmin, 4, `Амплитуда, мм.`);
+  //let hist = calculateHist(256, maxmin, buffer);
+  //drawHistogram(xg, yg + 150, 50, 256, 10, hist, `rgb(${80}, ${80}, ${200})`);
+  drawGradientScale(xg, yg, 60, 256, maxmin, 4, `Амплитуда, мм.`);
+  let hist = calculateHist(256, maxmin, buffer);
+  drawHistogram(xg + 60, yg, -50, 256, 10, hist, "blue"); //`rgb(${80}, ${80}, ${200})`
+}
+
+function calculateHist(num, maximin, buffer) {
+  if (num < 1) num = 1;
+  let dh = (maximin.max - maximin.min) / num;
+  let hist = Array(num).fill(0);
+
+  buffer.forEach((val) => {
+    if (val !== -9999) {
+      let i = Math.floor((val - maximin.min) / dh);
+      hist[i]++;
+    }
+  });
+
+  return hist;
+}
+
+function drawHistogram(
+  rectX,
+  rectY,
+  rectWidth,
+  rectHeight,
+  margin,
+  hist,
+  color
+) {
+  if (hist != null) {
+    //ctx.fillStyle = "white";
+    //ctx.fillRect(
+    //  rectX - margin,
+    //  rectY - margin,
+    //  rectWidth + 2 * margin,
+    //  rectHeight + 2 * margin
+    //);
+
+    let dy = rectHeight / hist.length;
+
+    let maxHist = 0;
+    for (let i = 1; i < hist.length; i++) {
+      if (hist[i] > maxHist) maxHist = hist[i];
+    }
+    console.log(`maxHist = ${maxHist}`);
+
+    let kx = rectWidth / maxHist;
+    console.log(`kx = ${kx}`);
+    let y = rectY + rectHeight - 1;
+    ctx.fillStyle = color;
+    hist.forEach((val) => {
+      let dx = val * kx;
+      if (dx < rectWidth) {
+        console.log(`dx = ${dx}, rectWidth = ${rectWidth}`);
+        dx = rectWidth;
+      }
+      ctx.fillRect(rectX, y, dx, dy);
+      y -= dy;
+    });
+  }
 }
 
 function getParamsFromUrl() {
