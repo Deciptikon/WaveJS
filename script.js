@@ -354,13 +354,13 @@ function draw(W, H) {
 function getParamsFromUrl() {
   const params = new URLSearchParams(window.location.search);
   return {
-    Chi: parseFloat(params.get("Chi")) || 39,
-    Psi: parseFloat(params.get("Psi")) || 0.112,
+    Chi: parseFloat(params.get("Chi")) || 5,
+    Psi: parseFloat(params.get("Psi")) || 0.08,
     Amplutuda: parseFloat(params.get("Amplutuda")) || 0.95,
     S: parseFloat(params.get("S")) || 1,
     Width: parseFloat(params.get("Width")) || 480,
     Height: parseFloat(params.get("Height")) || 320,
-    X0: parseFloat(params.get("X0")) || 100,
+    X0: parseFloat(params.get("X0")) || 150,
     Y0: parseFloat(params.get("Y0")) || 0,
     Scale: parseFloat(params.get("Scale")) || 0.1,
     Alfa: parseFloat(params.get("Alfa")) || 0.785,
