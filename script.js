@@ -129,7 +129,7 @@ function calculateStep(data, geometry, support, resez) {
     nextStep(data, geometry, support, resez);
   }
   deltaTime = performance.now() - startTimer;
-  console.log(`calculateStep: W = ${W}, H = ${H}`);
+  //console.log(`calculateStep: W = ${W}, H = ${H}`);
   draw(W, H);
 
   if (!updateGrid()) {
@@ -153,7 +153,7 @@ function createWorker(params, W, H) {
 
   worker.onmessage = (event) => {
     buffer = event.data;
-    console.log(`createWorker: W = ${W}, H = ${H}`);
+    //console.log(`createWorker: W = ${W}, H = ${H}`);
     draw(W, H);
 
     if (!updateGrid()) {
@@ -257,7 +257,7 @@ function drawGradientScale(
   precision,
   nameGradient
 ) {
-  console.log("function drawGradientScale()");
+  //console.log("function drawGradientScale()");
 
   let margin = 5;
 
@@ -330,11 +330,11 @@ function drawGradientScale(
     rectX + rectWidth + 3,
     rectY + rectHeight - 2
   );
-  console.log("function drawGradientScale() --> end");
+  //console.log("function drawGradientScale() --> end");
 }
 
 function draw(W, H) {
-  console.log(`draw: W = ${W}, H = ${H}`);
+  //console.log(`draw: W = ${W}, H = ${H}`);
   let maxmin = getMaxMin(W, H, buffer);
   drawGrid(W, H, maxmin);
 
@@ -395,16 +395,16 @@ function drawHistogram(
     for (let i = 1; i < hist.length; i++) {
       if (hist[i] > maxHist) maxHist = hist[i];
     }
-    console.log(`maxHist = ${maxHist}`);
+    //console.log(`maxHist = ${maxHist}`);
 
     let kx = rectWidth / maxHist;
-    console.log(`kx = ${kx}`);
+    //console.log(`kx = ${kx}`);
     let y = rectY + rectHeight - 1;
     ctx.fillStyle = color;
     hist.forEach((val) => {
       let dx = val * kx;
       if (dx < rectWidth) {
-        console.log(`dx = ${dx}, rectWidth = ${rectWidth}`);
+        //console.log(`dx = ${dx}, rectWidth = ${rectWidth}`);
         dx = rectWidth;
       }
       ctx.fillRect(rectX, y, dx, dy);
@@ -443,7 +443,7 @@ function updateUrl(params) {
 }
 
 function setTextContentToHTML(params) {
-  console.log("function setParamsToHTML(params)");
+  //console.log("function setParamsToHTML(params)");
   const {
     Chi,
     Psi,
@@ -484,7 +484,7 @@ function setTextContentToHTML(params) {
 }
 
 function setParamsToHTML(params) {
-  console.log("function setParamsToHTML(params)");
+  //console.log("function setParamsToHTML(params)");
   const {
     Chi,
     Psi,
@@ -562,14 +562,14 @@ function getParamsFromHTML() {
 // Загрузка параметров из URL при загрузке страницы
 window.addEventListener("load", () => {
   const paramsURL = getParamsFromUrl();
-  console.log("window.addEventListener(load)");
+  //console.log("window.addEventListener(load)");
   setParamsToHTML(paramsURL);
   setTextContentToHTML(paramsURL);
   updateCanvas(paramsURL);
 });
 
 function updateUrlListener() {
-  console.log("function updateUrlListener()");
+  //console.log("function updateUrlListener()");
   //event.preventDefault();
   const params = getParamsFromHTML();
   updateUrl(params);
