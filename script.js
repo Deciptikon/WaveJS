@@ -6,6 +6,7 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
 const colorWhite = `rgb(${255}, ${255}, ${255})`;
+const colorBackground = `rgb(${150}, ${100}, ${100})`;
 
 const favicon = document.getElementById("favicon");
 
@@ -202,7 +203,7 @@ function nextStep(data, geometry, support, resez) {
 
 function drawGrid(W, H, maxmin) {
   let ampl = maxmin.max - maxmin.min;
-  if (ampl === 0) return;
+  //if (ampl === 0) return;
 
   //обводка синяя
   if (globalStep > 1) {
@@ -220,10 +221,14 @@ function drawGrid(W, H, maxmin) {
       let val = getValue(i, j, W, H, buffer);
       let color = 128;
       if (val === -9999) {
-        color = `rgb(${150}, ${100}, ${100})`;
+        color = colorBackground;
       } else {
-        let c = ((val - maxmin.min) / ampl) * 255;
-        color = `rgb(${c}, ${c}, ${c})`;
+        if (ampl !== 0) {
+          let c = ((val - maxmin.min) / ampl) * 255;
+          color = `rgb(${c}, ${c}, ${c})`;
+        } else {
+          color = colorBackground;
+        }
       }
 
       ctx.fillStyle = color;
@@ -252,6 +257,8 @@ function drawGradientScale(
   precision,
   nameGradient
 ) {
+  console.log("function drawGradientScale()");
+
   let margin = 5;
 
   ctx.font = "12px 'Times New Roman'";
@@ -323,6 +330,7 @@ function drawGradientScale(
     rectX + rectWidth + 3,
     rectY + rectHeight - 2
   );
+  console.log("function drawGradientScale() --> end");
 }
 
 function draw(W, H) {
