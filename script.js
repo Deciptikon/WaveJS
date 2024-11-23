@@ -68,17 +68,22 @@ let globalSizeGrid = 2;
 let worker = null;
 let deltaTime = 0;
 
-function updateCanvas() {
-  const paramChi = paramChiInput.value;
-  const paramPsi = paramPsiInput.value;
-  const paramAmplutuda = paramAmplutudaInput.value;
-  const paramS = paramSInput.value;
-
-  const canvasWidth = canvasWidthInput.value;
-  const canvasHeight = canvasHeightInput.value;
-  const paramX0 = paramX0Input.value;
-  const paramY0 = paramY0Input.value;
-  const paramScale = paramScaleInput.value;
+function updateCanvas(paramsURL) {
+  const {
+    paramChi,
+    paramPsi,
+    paramAmplutuda,
+    paramS,
+    canvasWidth,
+    canvasHeight,
+    paramX0,
+    paramY0,
+    paramScale,
+    paramAlfa,
+    paramBetta,
+    paramGamma,
+    paramRo,
+  } = paramsURL;
 
   const paramR = 200;
   const paramr = 100;
@@ -88,37 +93,9 @@ function updateCanvas() {
   let W = parseInt(canvasWidth, 10);
   let H = parseInt(canvasHeight, 10);
 
-  //параметры резца
-  const paramAlfa = paramAlfaInput.value;
-  const paramBetta = paramBettaInput.value;
-  const paramGamma = paramGammaInput.value;
-  const paramRo = paramRoInput.value;
-
   let fullRelationFreq = parseFloat(paramChi) + parseFloat(paramPsi);
   let paramOmega = 1; // вращение заготовки
   let paramFreq = paramOmega * fullRelationFreq;
-
-  // установка чисел в html
-
-  paramChiValue.textContent = paramChi;
-  paramPsiValue.textContent = paramPsi;
-
-  paramAmplutudaValue.textContent = paramAmplutuda;
-  paramSValue.textContent = paramS;
-
-  canvasWidthValue.textContent = canvasWidth;
-  canvasHeightValue.textContent = canvasHeight;
-
-  paramX0Value.textContent = paramX0;
-  paramY0Value.textContent = paramY0;
-
-  paramScaleValue.textContent = paramScale;
-
-  paramAlfaValue.textContent = paramAlfa;
-  paramBettaValue.textContent = paramBetta;
-
-  paramGammaValue.textContent = paramGamma;
-  paramRoValue.textContent = paramRo;
 
   isFirstDraw = true;
   setFavicon(1);
@@ -364,24 +341,147 @@ function draw(W, H) {
   drawGradientScale(xg, yg, 30, 100, maxmin, 4, `Амплитуда, мм.`);
 }
 
-paramChiInput.addEventListener("input", updateCanvas);
-paramPsiInput.addEventListener("input", updateCanvas);
+function getParamsFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  return {
+    paramChi: parseFloat(params.get("paramChi")) || 0,
+    paramPsi: parseFloat(params.get("paramPsi")) || 0,
+    paramAmplutuda: parseFloat(params.get("paramAmplutuda")) || 0,
+    paramS: parseFloat(params.get("paramS")) || 0,
+    canvasWidth: parseFloat(params.get("canvasWidth")) || 0,
+    canvasHeight: parseFloat(params.get("canvasHeight")) || 0,
+    paramX0: parseFloat(params.get("paramX0")) || 0,
+    paramY0: parseFloat(params.get("paramY0")) || 0,
+    paramScale: parseFloat(params.get("paramScale")) || 0,
+    paramAlfa: parseFloat(params.get("paramAlfa")) || 0,
+    paramBetta: parseFloat(params.get("paramBetta")) || 0,
+    paramGamma: parseFloat(params.get("paramGamma")) || 0,
+    paramRo: parseFloat(params.get("paramRo")) || 0,
+  };
+}
 
-paramAmplutudaInput.addEventListener("input", updateCanvas);
-paramSInput.addEventListener("input", updateCanvas);
+function updateUrl(params) {
+  const url = new URL(window.location);
+  Object.keys(params).forEach((key) => {
+    if (params[key] !== null) {
+      url.searchParams.set(key, params[key]);
+    }
+  });
+  history.replaceState(null, "", url);
+}
 
-canvasWidthInput.addEventListener("input", updateCanvas);
-canvasHeightInput.addEventListener("input", updateCanvas);
+function setTextContentToHTML(params) {
+  console.log("function setParamsToHTML(params)");
+  const {
+    paramChi,
+    paramPsi,
+    paramAmplutuda,
+    paramS,
+    canvasWidth,
+    canvasHeight,
+    paramX0,
+    paramY0,
+    paramScale,
+    paramAlfa,
+    paramBetta,
+    paramGamma,
+    paramRo,
+  } = params;
 
-paramX0Input.addEventListener("input", updateCanvas);
-paramY0Input.addEventListener("input", updateCanvas);
+  //paramChiInput.value = paramChi;
 
-paramScaleInput.addEventListener("input", updateCanvas);
+  paramChiValue.textContent = paramChi;
+  paramPsiValue.textContent = paramPsi;
 
-paramAlfaInput.addEventListener("input", updateCanvas);
-paramBettaInput.addEventListener("input", updateCanvas);
+  paramAmplutudaValue.textContent = paramAmplutuda;
+  paramSValue.textContent = paramS;
 
-paramGammaInput.addEventListener("input", updateCanvas);
-paramRoInput.addEventListener("input", updateCanvas);
+  canvasWidthValue.textContent = canvasWidth;
+  canvasHeightValue.textContent = canvasHeight;
 
-updateCanvas();
+  paramX0Value.textContent = paramX0;
+  paramY0Value.textContent = paramY0;
+
+  paramScaleValue.textContent = paramScale;
+
+  paramAlfaValue.textContent = paramAlfa;
+  paramBettaValue.textContent = paramBetta;
+
+  paramGammaValue.textContent = paramGamma;
+  paramRoValue.textContent = paramRo;
+}
+
+function getParamsFromHTML() {
+  // параметры колебаний
+  const paramChi = parseFloat(paramChiInput.value) || 0;
+  const paramPsi = parseFloat(paramPsiInput.value) || 0;
+  const paramAmplutuda = parseFloat(paramAmplutudaInput.value) || 0;
+  const paramS = parseFloat(paramSInput.value) || 0;
+
+  // параметры отображения
+  const canvasWidth = parseFloat(canvasWidthInput.value) || 0;
+  const canvasHeight = parseFloat(canvasHeightInput.value) || 0;
+  const paramX0 = parseFloat(paramX0Input.value) || 0;
+  const paramY0 = parseFloat(paramY0Input.value) || 0;
+  const paramScale = parseFloat(paramScaleInput.value) || 0;
+
+  // параметры резца
+  const paramAlfa = parseFloat(paramAlfaInput.value) || 0;
+  const paramBetta = parseFloat(paramBettaInput.value) || 0;
+  const paramGamma = parseFloat(paramGammaInput.value) || 0;
+  const paramRo = parseFloat(paramRoInput.value) || 0;
+
+  return {
+    paramChi,
+    paramPsi,
+    paramAmplutuda,
+    paramS,
+    canvasWidth,
+    canvasHeight,
+    paramX0,
+    paramY0,
+    paramScale,
+    paramAlfa,
+    paramBetta,
+    paramGamma,
+    paramRo,
+  };
+}
+
+// Загрузка параметров из URL при загрузке страницы
+window.addEventListener("load", () => {
+  const paramsURL = getParamsFromUrl();
+  setTextContentToHTML(paramsURL);
+  updateCanvas(paramsURL);
+});
+
+function updateUrlListener() {
+  console.log("function updateUrlListener()");
+  //event.preventDefault();
+  const params = getParamsFromHTML();
+  updateUrl(params);
+  setTextContentToHTML(params);
+  updateCanvas(params);
+}
+
+paramChiInput.addEventListener("input", updateUrlListener);
+paramPsiInput.addEventListener("input", updateUrlListener);
+
+paramAmplutudaInput.addEventListener("input", updateUrlListener);
+paramSInput.addEventListener("input", updateUrlListener);
+
+canvasWidthInput.addEventListener("input", updateUrlListener);
+canvasHeightInput.addEventListener("input", updateUrlListener);
+
+paramX0Input.addEventListener("input", updateUrlListener);
+paramY0Input.addEventListener("input", updateUrlListener);
+
+paramScaleInput.addEventListener("input", updateUrlListener);
+
+paramAlfaInput.addEventListener("input", updateUrlListener);
+paramBettaInput.addEventListener("input", updateUrlListener);
+
+paramGammaInput.addEventListener("input", updateUrlListener);
+paramRoInput.addEventListener("input", updateUrlListener);
+
+updateUrlListener();
