@@ -70,19 +70,19 @@ let deltaTime = 0;
 
 function updateCanvas(paramsURL) {
   const {
-    paramChi,
-    paramPsi,
-    paramAmplutuda,
-    paramS,
-    canvasWidth,
-    canvasHeight,
-    paramX0,
-    paramY0,
-    paramScale,
-    paramAlfa,
-    paramBetta,
-    paramGamma,
-    paramRo,
+    Chi,
+    Psi,
+    Amplutuda,
+    S,
+    Width,
+    Height,
+    X0,
+    Y0,
+    Scale,
+    Alfa,
+    Betta,
+    Gamma,
+    Ro,
   } = paramsURL;
 
   const paramR = 200;
@@ -90,10 +90,10 @@ function updateCanvas(paramsURL) {
 
   const paramMK = 10; //это не изменяемый параметр
 
-  let W = parseInt(canvasWidth, 10);
-  let H = parseInt(canvasHeight, 10);
+  let W = parseInt(Width, 10);
+  let H = parseInt(Height, 10);
 
-  let fullRelationFreq = parseFloat(paramChi) + parseFloat(paramPsi);
+  let fullRelationFreq = parseFloat(Chi) + parseFloat(Psi);
   let paramOmega = 1; // вращение заготовки
   let paramFreq = paramOmega * fullRelationFreq;
 
@@ -101,10 +101,10 @@ function updateCanvas(paramsURL) {
   setFavicon(1);
 
   calculateStep(
-    [paramFreq, paramOmega, paramAmplutuda, paramS],
-    [W, H, paramX0, paramY0, paramScale],
+    [paramFreq, paramOmega, Amplutuda, S],
+    [W, H, X0, Y0, Scale],
     [paramR, paramr, paramMK],
-    [paramAlfa, paramBetta, paramGamma, paramRo]
+    [Alfa, Betta, Gamma, Ro]
   );
 }
 
@@ -128,7 +128,7 @@ function calculateStep(data, geometry, support, resez) {
     nextStep(data, geometry, support, resez);
   }
   deltaTime = performance.now() - startTimer;
-
+  console.log(`calculateStep: W = ${W}, H = ${H}`);
   draw(W, H);
 
   if (!updateGrid()) {
@@ -152,7 +152,7 @@ function createWorker(params, W, H) {
 
   worker.onmessage = (event) => {
     buffer = event.data;
-
+    console.log(`createWorker: W = ${W}, H = ${H}`);
     draw(W, H);
 
     if (!updateGrid()) {
@@ -285,9 +285,9 @@ function drawGradientScale(
   );
 
   const gradient = ctx.createLinearGradient(0, rectY + rectHeight, 0, rectY);
+
   gradient.addColorStop(0, "black"); // Нижняя часть
   gradient.addColorStop(1, "white"); // Верхняя часть
-
   //градиент
   ctx.fillStyle = gradient;
   ctx.fillRect(rectX, rectY, rectWidth, rectHeight);
@@ -326,6 +326,7 @@ function drawGradientScale(
 }
 
 function draw(W, H) {
+  console.log(`draw: W = ${W}, H = ${H}`);
   let maxmin = getMaxMin(W, H, buffer);
   drawGrid(W, H, maxmin);
 
@@ -338,25 +339,26 @@ function draw(W, H) {
   let yg = centerY - H / 2;
   if (isLeft) yg -= 120;
   if (yg < 160) yg = 160;
+  console.log(`draw: xg = ${xg}, yg = ${yg}`);
   drawGradientScale(xg, yg, 30, 100, maxmin, 4, `Амплитуда, мм.`);
 }
 
 function getParamsFromUrl() {
   const params = new URLSearchParams(window.location.search);
   return {
-    paramChi: parseFloat(params.get("paramChi")) || 0,
-    paramPsi: parseFloat(params.get("paramPsi")) || 0,
-    paramAmplutuda: parseFloat(params.get("paramAmplutuda")) || 0,
-    paramS: parseFloat(params.get("paramS")) || 0,
-    canvasWidth: parseFloat(params.get("canvasWidth")) || 0,
-    canvasHeight: parseFloat(params.get("canvasHeight")) || 0,
-    paramX0: parseFloat(params.get("paramX0")) || 0,
-    paramY0: parseFloat(params.get("paramY0")) || 0,
-    paramScale: parseFloat(params.get("paramScale")) || 0,
-    paramAlfa: parseFloat(params.get("paramAlfa")) || 0,
-    paramBetta: parseFloat(params.get("paramBetta")) || 0,
-    paramGamma: parseFloat(params.get("paramGamma")) || 0,
-    paramRo: parseFloat(params.get("paramRo")) || 0,
+    Chi: parseFloat(params.get("Chi")) || 39,
+    Psi: parseFloat(params.get("Psi")) || 0.112,
+    Amplutuda: parseFloat(params.get("Amplutuda")) || 0.95,
+    S: parseFloat(params.get("S")) || 1,
+    Width: parseFloat(params.get("Width")) || 480,
+    Height: parseFloat(params.get("Height")) || 320,
+    X0: parseFloat(params.get("X0")) || 100,
+    Y0: parseFloat(params.get("Y0")) || 0,
+    Scale: parseFloat(params.get("Scale")) || 0.1,
+    Alfa: parseFloat(params.get("Alfa")) || 0.5,
+    Betta: parseFloat(params.get("Betta")) || 0.3,
+    Gamma: parseFloat(params.get("Gamma")) || 0,
+    Ro: parseFloat(params.get("Ro")) || 1,
   };
 }
 
@@ -373,84 +375,125 @@ function updateUrl(params) {
 function setTextContentToHTML(params) {
   console.log("function setParamsToHTML(params)");
   const {
-    paramChi,
-    paramPsi,
-    paramAmplutuda,
-    paramS,
-    canvasWidth,
-    canvasHeight,
-    paramX0,
-    paramY0,
-    paramScale,
-    paramAlfa,
-    paramBetta,
-    paramGamma,
-    paramRo,
+    Chi,
+    Psi,
+    Amplutuda,
+    S,
+    Width,
+    Height,
+    X0,
+    Y0,
+    Scale,
+    Alfa,
+    Betta,
+    Gamma,
+    Ro,
   } = params;
 
   //paramChiInput.value = paramChi;
 
-  paramChiValue.textContent = paramChi;
-  paramPsiValue.textContent = paramPsi;
+  paramChiValue.textContent = Chi;
+  paramPsiValue.textContent = Psi;
 
-  paramAmplutudaValue.textContent = paramAmplutuda;
-  paramSValue.textContent = paramS;
+  paramAmplutudaValue.textContent = Amplutuda;
+  paramSValue.textContent = S;
 
-  canvasWidthValue.textContent = canvasWidth;
-  canvasHeightValue.textContent = canvasHeight;
+  canvasWidthValue.textContent = Width;
+  canvasHeightValue.textContent = Height;
 
-  paramX0Value.textContent = paramX0;
-  paramY0Value.textContent = paramY0;
+  paramX0Value.textContent = X0;
+  paramY0Value.textContent = Y0;
 
-  paramScaleValue.textContent = paramScale;
+  paramScaleValue.textContent = Scale;
 
-  paramAlfaValue.textContent = paramAlfa;
-  paramBettaValue.textContent = paramBetta;
+  paramAlfaValue.textContent = Alfa;
+  paramBettaValue.textContent = Betta;
 
-  paramGammaValue.textContent = paramGamma;
-  paramRoValue.textContent = paramRo;
+  paramGammaValue.textContent = Gamma;
+  paramRoValue.textContent = Ro;
+}
+
+function setParamsToHTML(params) {
+  console.log("function setParamsToHTML(params)");
+  const {
+    Chi,
+    Psi,
+    Amplutuda,
+    S,
+    Width,
+    Height,
+    X0,
+    Y0,
+    Scale,
+    Alfa,
+    Betta,
+    Gamma,
+    Ro,
+  } = params;
+
+  paramChiInput.value = Chi;
+  paramPsiInput.value = Psi;
+
+  paramAmplutudaInput.value = Amplutuda;
+  paramSInput.value = S;
+
+  canvasWidthInput.value = Width;
+  canvasHeightInput.value = Height;
+
+  paramX0Input.value = X0;
+  paramY0Input.value = Y0;
+
+  paramScaleInput.value = Scale;
+
+  paramAlfaInput.value = Alfa;
+  paramBettaInput.value = Betta;
+
+  paramGammaInput.value = Gamma;
+  paramRoInput.value = Ro;
 }
 
 function getParamsFromHTML() {
   // параметры колебаний
-  const paramChi = parseFloat(paramChiInput.value) || 0;
-  const paramPsi = parseFloat(paramPsiInput.value) || 0;
-  const paramAmplutuda = parseFloat(paramAmplutudaInput.value) || 0;
-  const paramS = parseFloat(paramSInput.value) || 0;
+  const Chi = parseFloat(paramChiInput.value) || 0;
+  const Psi = parseFloat(paramPsiInput.value) || 0;
+  const Amplutuda = parseFloat(paramAmplutudaInput.value) || 0;
+  const S = parseFloat(paramSInput.value) || 0;
 
   // параметры отображения
-  const canvasWidth = parseFloat(canvasWidthInput.value) || 0;
-  const canvasHeight = parseFloat(canvasHeightInput.value) || 0;
-  const paramX0 = parseFloat(paramX0Input.value) || 0;
-  const paramY0 = parseFloat(paramY0Input.value) || 0;
-  const paramScale = parseFloat(paramScaleInput.value) || 0;
+  const Width = parseFloat(canvasWidthInput.value) || 0;
+  const Height = parseFloat(canvasHeightInput.value) || 0;
+  const X0 = parseFloat(paramX0Input.value) || 0;
+  const Y0 = parseFloat(paramY0Input.value) || 0;
+  const Scale = parseFloat(paramScaleInput.value) || 0;
 
   // параметры резца
-  const paramAlfa = parseFloat(paramAlfaInput.value) || 0;
-  const paramBetta = parseFloat(paramBettaInput.value) || 0;
-  const paramGamma = parseFloat(paramGammaInput.value) || 0;
-  const paramRo = parseFloat(paramRoInput.value) || 0;
+  const Alfa = parseFloat(paramAlfaInput.value) || 0;
+  const Betta = parseFloat(paramBettaInput.value) || 0;
+  const Gamma = parseFloat(paramGammaInput.value) || 0;
+  const Ro = parseFloat(paramRoInput.value) || 0;
 
   return {
-    paramChi,
-    paramPsi,
-    paramAmplutuda,
-    paramS,
-    canvasWidth,
-    canvasHeight,
-    paramX0,
-    paramY0,
-    paramScale,
-    paramAlfa,
-    paramBetta,
-    paramGamma,
-    paramRo,
+    Chi,
+    Psi,
+    Amplutuda,
+    S,
+    Width,
+    Height,
+    X0,
+    Y0,
+    Scale,
+    Alfa,
+    Betta,
+    Gamma,
+    Ro,
   };
 }
 
 // Загрузка параметров из URL при загрузке страницы
 window.addEventListener("load", () => {
   const paramsURL = getParamsFromUrl();
+  console.log("window.addEventListener(load)");
+  setParamsToHTML(paramsURL);
   setTextContentToHTML(paramsURL);
   updateCanvas(paramsURL);
 });
@@ -484,4 +527,4 @@ paramBettaInput.addEventListener("input", updateUrlListener);
 paramGammaInput.addEventListener("input", updateUrlListener);
 paramRoInput.addEventListener("input", updateUrlListener);
 
-updateUrlListener();
+//updateUrlListener();
