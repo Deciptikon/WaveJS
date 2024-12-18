@@ -64,6 +64,7 @@ const centerY = canvas.height / 2 + 60; // Центр по оси Y (умень�
 let globalWidth = parseInt(canvasWidthInput, 10);
 let globalHeight = parseInt(canvasHeightInput, 10);
 let globalScale = parseFloat(paramScaleInput, 10);
+let globalMaxMin = { max: 0, min: 0 };
 
 let isFirstDraw = true;
 let animationFrameId = null;
@@ -354,6 +355,7 @@ function drawGradientScale(
 function draw(W, H) {
   //console.log(`draw: W = ${W}, H = ${H}`);
   let maxmin = getMaxMin(W, H, buffer);
+  globalMaxMin = maxmin;
   drawGrid(W, H, maxmin);
 
   let xg = centerX - W / 2 - 150;
@@ -634,7 +636,7 @@ function drawVectorWolnogramma(geometry, vecW, scale) {
   const orto = multipleToScalarVec2d(orthoVec2d(unit), -1);
   const ortoD = multipleToScalarVec2d(orto, 10);
   const ortoDt = multipleToScalarVec2d(orto, 13);
-  const d = 50;
+  const d = 50.0;
 
 
   for(let i=0; i<lengthVec2d(vec)/d; i++) {
@@ -648,7 +650,7 @@ function drawVectorWolnogramma(geometry, vecW, scale) {
 
     ctx.textAlign = "center";
     ctx.fillText(
-      `${(d*i * scale).toFixed(2)}`,
+      `${(d*i * scale).toFixed(2)}`,//(d*i * scale).toFixed(2)
       X0 + Bt.x, 
       Y0 + Bt.y
   );
@@ -661,6 +663,9 @@ function drawGraphWolnogramma(geometry, buffer, vecW, scale) {
   const X0 = centerX - W/2;
   const Y0 = centerY - H/2;
 
+  const hDown = 50;
+  const d = 50.0;
+
   const vecBase = {
     x: vecW.x0,
     y: vecW.y0
@@ -669,13 +674,97 @@ function drawGraphWolnogramma(geometry, buffer, vecW, scale) {
     x: vecW.x1 - vecW.x0,
     y: vecW.y1 - vecW.y0
   }
-  const lenVec = lengthVec2d(vec);
+  const unit = unitVec2d(vec);
+  const lenVec = parseInt(lengthVec2d(vec));
+  console.log(`vecBase.x = ${vecBase.x}   vecBase.y = ${vecBase.y}`);
+  console.log(`vec.x = ${vec.x}   vec.y = ${vec.y}`);
+
+  const lineColor = 'rgb(0, 0, 0)';
+  
+  
+  ctx.setLineDash([]);
+  ctx.beginPath();
+  
+  ctx.strokeStyle = lineColor;
+  ctx.fillStyle = lineColor;
+  ctx.lineWidth = 1;
+  
+  ctx.moveTo(centerX - lenVec/2, canvas.height - hDown);
+  ctx.lineTo(centerX + lenVec/2, canvas.height - hDown);
+  ctx.stroke();
+
+  for(let i=0; i<lenVec/d; i++) {
+    ctx.setLineDash([]);
+    ctx.moveTo(centerX - lenVec/2 + i*d, canvas.height - hDown);
+    ctx.lineTo(centerX - lenVec/2 + i*d, canvas.height - hDown + 10);
+    ctx.stroke();
+
+    ctx.textAlign = "center";
+    ctx.fillText(
+      `${(d*i * scale).toFixed(2)}`,
+      centerX - lenVec/2 + i*d, 
+      canvas.height - hDown + 25
+    );
+  }
+  
+  const hL = 100;//высота вертикальной линии
+  ctx.moveTo(centerX - lenVec/2, canvas.height - hDown);
+  ctx.lineTo(centerX - lenVec/2, canvas.height - hDown - 100);
+  ctx.stroke();
+  
+  const nh = 5;//вертикальное количество делений
+  const dmax = (globalMaxMin.max - globalMaxMin.min)/nh;
+  const dh = hL/nh;
+
+  
+  ctx.beginPath();
+  
+  for(let i=0; i < nh+1; i++) {
+    ctx.setLineDash([10, 5]);
+    ctx.moveTo(centerX - lenVec/2 - 10, canvas.height - hDown - i*dh);
+    ctx.lineTo(centerX + lenVec/2, canvas.height - hDown - i*dh);
+    ctx.stroke();
+
+    ctx.textAlign = "center";
+    ctx.fillText(
+      `${(dmax*i).toFixed(4)}`,
+      centerX - lenVec/2 - 30, 
+      canvas.height - hDown - i*dh + 5
+    );
+
+    ctx.setLineDash([]);
+    ctx.beginPath();
+    for(let i = 0; i<lenVec; i++) {
+      const V = additionVec2d(vecBase, multipleToScalarVec2d(unit,i));
+      if((V.x > 0) && (V.x < W-1) && (V.y > 0) && (V.y < H-1) ) {
+        if(!(getValue(parseInt(V.y), parseInt(V.x), W, H, buffer) === -9999)) {
+          //билинейное интерполяция значения
+          const ii = V.y;
+          const jj = V.x;
+          const pi = parseInt(ii);
+          const pj = parseInt(jj);
+          const ki = ii - pi;
+          const kj = jj - pj;
+          const v00 = getValue(pi, pj, W, H, buffer);
+          const v01 = getValue(pi, pj + 1, W, H, buffer);
+          const v10 = getValue(pi + 1, pj, W, H, buffer);
+          const v11 = getValue(pi + 1, pj + 1, W, H, buffer);
+          const vj0 = v00*(1 - kj) + v01 * kj;
+          const vj1 = v10*(1 - kj) + v11 * kj;
+          const value = vj0*(1 - ki) + vj1 * ki;
+          
+          ctx.moveTo(centerX - lenVec/2 + i, canvas.height - hDown);
+          ctx.lineTo(centerX - lenVec/2 + i, 
+            canvas.height - hDown - 
+            hL * (value - globalMaxMin.min) / (globalMaxMin.max - globalMaxMin.min));
+        }
+      }
+    }
+    
+    ctx.stroke();
+  }
 
 
-
-  //for() {
-
-  //}
 
 }
 
