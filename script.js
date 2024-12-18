@@ -1,9 +1,11 @@
 import { model } from "./functionModel.js";
 import { getMaxMin, getValue } from "./functionMatrix.js";
 import { firstGrid, nextGrid } from "./functionGridCoord.js";
+import { orthoVec2d, lengthVec2d, additionVec2d, unitVec2d, multipleToScalarVec2d } from "./vector2d.js"
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
+let savedImageCanvas = null;
 
 const colorWhite = `rgb(${255}, ${255}, ${255})`;
 const colorBackground = `rgb(${150}, ${100}, ${100})`;
@@ -59,6 +61,10 @@ canvas.height = window.innerHeight;
 const centerX = canvas.width / 2; // Центр по оси X
 const centerY = canvas.height / 2 + 60; // Центр по оси Y (уменьшаем на высоту панели)
 
+let globalWidth = parseInt(canvasWidthInput, 10);
+let globalHeight = parseInt(canvasHeightInput, 10);
+let globalScale = parseFloat(paramScaleInput, 10);
+
 let isFirstDraw = true;
 let animationFrameId = null;
 
@@ -68,6 +74,16 @@ let globalSizeGrid = 2;
 
 let worker = null;
 let deltaTime = 0;
+
+let isUpdateWolnogramma = false;
+let isDrawWolnogramma = true;
+
+let geometryWolnogramma = {
+  x0: 0,
+  y0: 0,
+  x1: 0,
+  y1: 0
+};
 
 function updateCanvas(paramsURL) {
   const {
@@ -100,6 +116,7 @@ function updateCanvas(paramsURL) {
 
   isFirstDraw = true;
   setFavicon(1);
+  savedImageCanvas = null;
 
   calculateStep(
     [paramFreq, paramOmega, Amplutuda, S],
@@ -158,6 +175,7 @@ function createWorker(params, W, H) {
 
     if (!updateGrid()) {
       setFavicon(0);
+      savedImageCanvas = ctx.getImageData(0, 0, canvas.width, canvas.height);
       return;
     }
     createWorker(params, W, H);
@@ -559,6 +577,114 @@ function getParamsFromHTML() {
   };
 }
 
+function lengthWolnogramma(geometryWolnogramma) {
+  return lengthVec2d(
+    { 
+      x: geometryWolnogramma.x1 - geometryWolnogramma.x0, 
+      y: geometryWolnogramma.y1 - geometryWolnogramma.y0,
+    }
+  );
+}
+
+function updateWolnogramma() {
+  isDrawWolnogramma = true;
+  if(isDrawWolnogramma) {
+    drawWolnogramma(
+      [globalWidth, globalHeight], 
+      buffer, 
+      geometryWolnogramma, 
+      globalScale, 
+      savedImageCanvas
+    );
+  }
+}
+
+function drawVectorWolnogramma(geometry, vecW, scale) {
+  
+  const W = parseInt(globalWidth, 10);
+  const H = parseInt(globalHeight, 10);
+  const X0 = centerX - W/2;
+  const Y0 = centerY - H/2;
+
+
+  const vecBase = {
+    x: vecW.x0,
+    y: vecW.y0
+  }
+  const vec = {
+    x: vecW.x1 - vecW.x0,
+    y: vecW.y1 - vecW.y0
+  }
+
+
+  const lineColor = 'rgb(255, 0, 0)';
+
+  ctx.strokeStyle = lineColor;
+  ctx.fillStyle = lineColor;
+  ctx.lineWidth = 1;
+
+  let vecR = additionVec2d(vecBase, vec);
+
+  ctx.beginPath();
+  ctx.moveTo(X0 + vecBase.x, Y0 + vecBase.y);
+  ctx.lineTo(X0 + vecR.x, Y0 + vecR.y);
+  ctx.stroke();
+
+  const unit = unitVec2d(vec);
+  const orto = multipleToScalarVec2d(orthoVec2d(unit), -1);
+  const ortoD = multipleToScalarVec2d(orto, 10);
+  const ortoDt = multipleToScalarVec2d(orto, 13);
+  const d = 50;
+
+
+  for(let i=0; i<lengthVec2d(vec)/d; i++) {
+    const A = additionVec2d(vecBase, multipleToScalarVec2d(unit, d*i));
+    const B = additionVec2d(A, ortoD);
+    const Bt = additionVec2d(A, ortoDt);
+
+    ctx.moveTo(X0 + A.x, Y0 + A.y);
+    ctx.lineTo(X0 + B.x, Y0 + B.y);
+    ctx.stroke();
+
+    ctx.textAlign = "center";
+    ctx.fillText(
+      `${(d*i * scale).toFixed(2)}`,
+      X0 + Bt.x, 
+      Y0 + Bt.y
+  );
+  }
+}
+
+function drawGraphWolnogramma(geometry, buffer, vecW, scale) {
+  const W = parseInt(globalWidth, 10);
+  const H = parseInt(globalHeight, 10);
+  const X0 = centerX - W/2;
+  const Y0 = centerY - H/2;
+
+  const vecBase = {
+    x: vecW.x0,
+    y: vecW.y0
+  }
+  const vec = {
+    x: vecW.x1 - vecW.x0,
+    y: vecW.y1 - vecW.y0
+  }
+  const lenVec = lengthVec2d(vec);
+
+
+
+  //for() {
+
+  //}
+
+}
+
+function drawWolnogramma(geometry, buffer, vec, scale, imgCanvas) {
+  ctx.putImageData(imgCanvas, 0, 0);
+  drawVectorWolnogramma(geometry, vec, scale);
+  drawGraphWolnogramma(geometry, buffer, vec, scale);
+}
+
 // Загрузка параметров из URL при загрузке страницы
 window.addEventListener("load", () => {
   const paramsURL = getParamsFromUrl();
@@ -566,6 +692,9 @@ window.addEventListener("load", () => {
   setParamsToHTML(paramsURL);
   setTextContentToHTML(paramsURL);
   updateCanvas(paramsURL);
+  globalWidth = paramsURL.Width;
+  globalHeight = paramsURL.Height;
+  globalScale = paramsURL.Scale;
 });
 
 function updateUrlListener() {
@@ -575,7 +704,52 @@ function updateUrlListener() {
   updateUrl(params);
   setTextContentToHTML(params);
   updateCanvas(params);
+  globalWidth = params.Width;
+  globalHeight = params.Height;
+  globalScale = params.Scale;
 }
+
+// Отслеживание положения мыши
+canvas.addEventListener('mousemove', (event) => {
+  if(!isUpdateWolnogramma) {
+      return;
+  }
+  let W = parseInt(globalWidth, 10);
+  let H = parseInt(globalHeight, 10);
+  const rect = canvas.getBoundingClientRect();
+  const x = event.clientX - rect.left - centerX + W/2;
+  const y = event.clientY - rect.top - centerY + H/2;
+  geometryWolnogramma.x1 = x;
+  geometryWolnogramma.y1 = y;
+  console.log(`Mouse position: x=${geometryWolnogramma.x1}, y=${geometryWolnogramma.y1}`);
+  updateWolnogramma();
+  
+});
+
+
+canvas.addEventListener('mousedown', (event) => {
+  console.log(`Mouse down at button: ${event.button}`);
+  if (globalStep !== 1 || savedImageCanvas === null) {
+    return;
+  }
+  let W = parseInt(globalWidth, 10);
+  let H = parseInt(globalHeight, 10);
+  const rect = canvas.getBoundingClientRect();
+  const x = event.clientX - rect.left - centerX + W/2;
+  const y = event.clientY - rect.top - centerY + H/2;
+  geometryWolnogramma.x0 = x;
+  geometryWolnogramma.y0 = y;
+  isUpdateWolnogramma = true;
+});
+
+canvas.addEventListener('mouseup', (event) => {
+  console.log(`Mouse up at button: ${event.button}`);
+  isUpdateWolnogramma = false;
+});
+
+canvas.addEventListener('click', (event) => {
+  console.log('Mouse click detected');
+});
 
 paramChiInput.addEventListener("input", updateUrlListener);
 paramPsiInput.addEventListener("input", updateUrlListener);
