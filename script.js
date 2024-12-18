@@ -692,6 +692,12 @@ function drawGraphWolnogramma(geometry, buffer, vecW, scale) {
   ctx.moveTo(centerX - lenVec/2, canvas.height - hDown);
   ctx.lineTo(centerX + lenVec/2, canvas.height - hDown);
   ctx.stroke();
+  ctx.textAlign = "left";
+    ctx.fillText(
+      `Расстояние, мм.`,
+      centerX + lenVec/2 + 10, 
+      canvas.height - hDown + 10
+    );
 
   for(let i=0; i<lenVec/d; i++) {
     ctx.setLineDash([]);
@@ -709,8 +715,14 @@ function drawGraphWolnogramma(geometry, buffer, vecW, scale) {
   
   const hL = 100;//высота вертикальной линии
   ctx.moveTo(centerX - lenVec/2, canvas.height - hDown);
-  ctx.lineTo(centerX - lenVec/2, canvas.height - hDown - 100);
+  ctx.lineTo(centerX - lenVec/2, canvas.height - hDown - hL);
   ctx.stroke();
+  ctx.textAlign = "center";
+    ctx.fillText(
+      `Высота, мм.`,
+      centerX - lenVec/2, 
+      canvas.height - hDown - hL - 10
+    );
   
   const nh = 5;//вертикальное количество делений
   const dmax = (globalMaxMin.max - globalMaxMin.min)/nh;
