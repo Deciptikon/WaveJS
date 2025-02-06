@@ -272,5 +272,14 @@
     <canvas id="canvas"></canvas>
 
     <script type="module" src="script.js"></script>
+    <script>
+      function initBridge() {
+        vkBridge.send("VKWebAppInit");
+      }
+    </script>
+    <script
+      src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"
+      onload="initBridge()"
+    ></script>
   </body>
 </html>
