@@ -1,7 +1,13 @@
 import { model } from "./functionModel.js";
 import { getMaxMin, getValue } from "./functionMatrix.js";
 import { firstGrid, nextGrid } from "./functionGridCoord.js";
-import { orthoVec2d, lengthVec2d, additionVec2d, unitVec2d, multipleToScalarVec2d } from "./vector2d.js"
+import {
+  orthoVec2d,
+  lengthVec2d,
+  additionVec2d,
+  unitVec2d,
+  multipleToScalarVec2d,
+} from "./vector2d.js";
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
@@ -83,7 +89,7 @@ let geometryWolnogramma = {
   x0: 0,
   y0: 0,
   x1: 0,
-  y1: 0
+  y1: 0,
 };
 
 function updateCanvas(paramsURL) {
@@ -221,19 +227,12 @@ function nextStep(data, geometry, support, resez) {
 }
 
 function drawGrid(W, H, maxmin) {
-  let ampl = maxmin.max - maxmin.min;
-  //if (ampl === 0) return;
+  const tempCanvas = document.createElement("canvas");
+  tempCanvas.width = W;
+  tempCanvas.height = H;
+  const tempCtx = tempCanvas.getContext("2d");
 
-  //обводка синяя
-  if (globalStep > 1) {
-    ctx.strokeStyle = "red"; // Цвет линии
-    ctx.lineWidth = 2; // Толщина линии
-    ctx.strokeRect(centerX - W / 2 - 1, centerY - H / 2 - 1, W + 2, H + 2);
-  } else {
-    ctx.strokeStyle = "blue"; // Цвет линии
-    ctx.lineWidth = 2; // Толщина линии
-    ctx.strokeRect(centerX - W / 2 - 1, centerY - H / 2 - 1, W + 2, H + 2);
-  }
+  let ampl = maxmin.max - maxmin.min;
 
   for (let i = 0; i < H; i++) {
     for (let j = 0; j < W; j++) {
@@ -250,10 +249,11 @@ function drawGrid(W, H, maxmin) {
         }
       }
 
-      ctx.fillStyle = color;
-      ctx.fillRect(centerX - W / 2 + j, centerY - H / 2 + i, 1, 1);
+      tempCtx.fillStyle = color;
+      tempCtx.fillRect(j, i, 1, 1);
     }
   }
+  return tempCanvas;
 }
 
 function updateGrid() {
@@ -352,11 +352,52 @@ function drawGradientScale(
   //console.log("function drawGradientScale() --> end");
 }
 
+// Функция для сохранения эпюры в localStorage
+function saveEpureToLocalStorage(epureCanvas, keyName = "saved_epure_wavejs") {
+  const imageData = epureCanvas.toDataURL("image/png");
+
+  try {
+    localStorage.setItem(keyName, imageData);
+    console.log("Эпюра успешно сохранена в localStorage");
+    return true;
+  } catch (error) {
+    console.error("Ошибка сохранения в localStorage:", error);
+    return false;
+  }
+}
+
+function setFlag(flag, keyName = "flag_saved_epure_wavejs") {
+  try {
+    localStorage.setItem(keyName, flag);
+    console.log("Флаг записан в localStorage");
+    return true;
+  } catch (error) {
+    console.error("Ошибка записи флага в localStorage:", error);
+    return false;
+  }
+}
+
 function draw(W, H) {
   //console.log(`draw: W = ${W}, H = ${H}`);
   let maxmin = getMaxMin(W, H, buffer);
   globalMaxMin = maxmin;
-  drawGrid(W, H, maxmin);
+
+  const epureImage = drawGrid(W, H, maxmin);
+
+  ctx.drawImage(epureImage, centerX - W / 2, centerY - H / 2);
+
+  // Обводка (если нужно)
+  if (globalStep > 1) {
+    ctx.strokeStyle = "red";
+  } else {
+    ctx.strokeStyle = "blue";
+    console.log("Сохраняем эпюру в localstorage");
+    if (saveEpureToLocalStorage(epureImage)) {
+      setFlag(true);
+    }
+  }
+  ctx.lineWidth = 2;
+  ctx.strokeRect(centerX - W / 2 - 1, centerY - H / 2 - 1, W + 2, H + 2);
 
   let xg = centerX - W / 2 - 150;
   let isLeft = false;
@@ -437,7 +478,7 @@ function getParamsFromUrl() {
   const params = new URLSearchParams(window.location.search);
   return {
     Chi: parseFloat(params.get("Chi")) || 5,
-    Psi: parseFloat(params.get("Psi")) || 0.08,
+    Psi: parseFloat(params.get("Psi")) || 0,
     Amplutuda: parseFloat(params.get("Amplutuda")) || 0.95,
     S: parseFloat(params.get("S")) || 1,
     Width: parseFloat(params.get("Width")) || 480,
@@ -580,46 +621,41 @@ function getParamsFromHTML() {
 }
 
 function lengthWolnogramma(geometryWolnogramma) {
-  return lengthVec2d(
-    { 
-      x: geometryWolnogramma.x1 - geometryWolnogramma.x0, 
-      y: geometryWolnogramma.y1 - geometryWolnogramma.y0,
-    }
-  );
+  return lengthVec2d({
+    x: geometryWolnogramma.x1 - geometryWolnogramma.x0,
+    y: geometryWolnogramma.y1 - geometryWolnogramma.y0,
+  });
 }
 
 function updateWolnogramma() {
   isDrawWolnogramma = true;
-  if(isDrawWolnogramma) {
+  if (isDrawWolnogramma) {
     drawWolnogramma(
-      [globalWidth, globalHeight], 
-      buffer, 
-      geometryWolnogramma, 
-      globalScale, 
+      [globalWidth, globalHeight],
+      buffer,
+      geometryWolnogramma,
+      globalScale,
       savedImageCanvas
     );
   }
 }
 
 function drawVectorWolnogramma(geometry, vecW, scale) {
-  
   const W = parseInt(globalWidth, 10);
   const H = parseInt(globalHeight, 10);
-  const X0 = centerX - W/2;
-  const Y0 = centerY - H/2;
-
+  const X0 = centerX - W / 2;
+  const Y0 = centerY - H / 2;
 
   const vecBase = {
     x: vecW.x0,
-    y: vecW.y0
-  }
+    y: vecW.y0,
+  };
   const vec = {
     x: vecW.x1 - vecW.x0,
-    y: vecW.y1 - vecW.y0
-  }
+    y: vecW.y1 - vecW.y0,
+  };
 
-
-  const lineColor = 'rgb(255, 0, 0)';
+  const lineColor = "rgb(255, 0, 0)";
 
   ctx.strokeStyle = lineColor;
   ctx.fillStyle = lineColor;
@@ -638,9 +674,8 @@ function drawVectorWolnogramma(geometry, vecW, scale) {
   const ortoDt = multipleToScalarVec2d(orto, 13);
   const d = 50.0;
 
-
-  for(let i=0; i<lengthVec2d(vec)/d; i++) {
-    const A = additionVec2d(vecBase, multipleToScalarVec2d(unit, d*i));
+  for (let i = 0; i < lengthVec2d(vec) / d; i++) {
+    const A = additionVec2d(vecBase, multipleToScalarVec2d(unit, d * i));
     const B = additionVec2d(A, ortoD);
     const Bt = additionVec2d(A, ortoDt);
 
@@ -650,106 +685,104 @@ function drawVectorWolnogramma(geometry, vecW, scale) {
 
     ctx.textAlign = "center";
     ctx.fillText(
-      `${(d*i * scale).toFixed(2)}`,//(d*i * scale).toFixed(2)
-      X0 + Bt.x, 
+      `${(d * i * scale).toFixed(2)}`, //(d*i * scale).toFixed(2)
+      X0 + Bt.x,
       Y0 + Bt.y
-  );
+    );
   }
 }
 
 function drawGraphWolnogramma(geometry, buffer, vecW, scale) {
   const W = parseInt(globalWidth, 10);
   const H = parseInt(globalHeight, 10);
-  const X0 = centerX - W/2;
-  const Y0 = centerY - H/2;
+  const X0 = centerX - W / 2;
+  const Y0 = centerY - H / 2;
 
   const hDown = 50;
   const d = 50.0;
 
   const vecBase = {
     x: vecW.x0,
-    y: vecW.y0
-  }
+    y: vecW.y0,
+  };
   const vec = {
     x: vecW.x1 - vecW.x0,
-    y: vecW.y1 - vecW.y0
-  }
+    y: vecW.y1 - vecW.y0,
+  };
   const unit = unitVec2d(vec);
   const lenVec = parseInt(lengthVec2d(vec));
   console.log(`vecBase.x = ${vecBase.x}   vecBase.y = ${vecBase.y}`);
   console.log(`vec.x = ${vec.x}   vec.y = ${vec.y}`);
 
-  const lineColor = 'rgb(0, 0, 0)';
-  
-  
+  const lineColor = "rgb(0, 0, 0)";
+
   ctx.setLineDash([]);
   ctx.beginPath();
-  
+
   ctx.strokeStyle = lineColor;
   ctx.fillStyle = lineColor;
   ctx.lineWidth = 1;
-  
-  ctx.moveTo(centerX - lenVec/2, canvas.height - hDown);
-  ctx.lineTo(centerX + lenVec/2, canvas.height - hDown);
+
+  ctx.moveTo(centerX - lenVec / 2, canvas.height - hDown);
+  ctx.lineTo(centerX + lenVec / 2, canvas.height - hDown);
   ctx.stroke();
   ctx.textAlign = "left";
-    ctx.fillText(
-      `Расстояние, мм.`,
-      centerX + lenVec/2 + 10, 
-      canvas.height - hDown + 10
-    );
+  ctx.fillText(
+    `Расстояние, мм.`,
+    centerX + lenVec / 2 + 10,
+    canvas.height - hDown + 10
+  );
 
-  for(let i=0; i<lenVec/d; i++) {
+  for (let i = 0; i < lenVec / d; i++) {
     ctx.setLineDash([]);
-    ctx.moveTo(centerX - lenVec/2 + i*d, canvas.height - hDown);
-    ctx.lineTo(centerX - lenVec/2 + i*d, canvas.height - hDown + 10);
+    ctx.moveTo(centerX - lenVec / 2 + i * d, canvas.height - hDown);
+    ctx.lineTo(centerX - lenVec / 2 + i * d, canvas.height - hDown + 10);
     ctx.stroke();
 
     ctx.textAlign = "center";
     ctx.fillText(
-      `${(d*i * scale).toFixed(2)}`,
-      centerX - lenVec/2 + i*d, 
+      `${(d * i * scale).toFixed(2)}`,
+      centerX - lenVec / 2 + i * d,
       canvas.height - hDown + 25
     );
   }
-  
-  const hL = 100;//высота вертикальной линии
-  ctx.moveTo(centerX - lenVec/2, canvas.height - hDown);
-  ctx.lineTo(centerX - lenVec/2, canvas.height - hDown - hL);
+
+  const hL = 100; //высота вертикальной линии
+  ctx.moveTo(centerX - lenVec / 2, canvas.height - hDown);
+  ctx.lineTo(centerX - lenVec / 2, canvas.height - hDown - hL);
   ctx.stroke();
   ctx.textAlign = "center";
-    ctx.fillText(
-      `Высота, мм.`,
-      centerX - lenVec/2, 
-      canvas.height - hDown - hL - 10
-    );
-  
-  const nh = 5;//вертикальное количество делений
-  const dmax = (globalMaxMin.max - globalMaxMin.min)/nh;
-  const dh = hL/nh;
+  ctx.fillText(
+    `Высота, мм.`,
+    centerX - lenVec / 2,
+    canvas.height - hDown - hL - 10
+  );
 
-  
+  const nh = 5; //вертикальное количество делений
+  const dmax = (globalMaxMin.max - globalMaxMin.min) / nh;
+  const dh = hL / nh;
+
   ctx.beginPath();
-  
-  for(let i=0; i < nh+1; i++) {
+
+  for (let i = 0; i < nh + 1; i++) {
     ctx.setLineDash([10, 5]);
-    ctx.moveTo(centerX - lenVec/2 - 10, canvas.height - hDown - i*dh);
-    ctx.lineTo(centerX + lenVec/2, canvas.height - hDown - i*dh);
+    ctx.moveTo(centerX - lenVec / 2 - 10, canvas.height - hDown - i * dh);
+    ctx.lineTo(centerX + lenVec / 2, canvas.height - hDown - i * dh);
     ctx.stroke();
 
     ctx.textAlign = "center";
     ctx.fillText(
-      `${(dmax*i).toFixed(4)}`,
-      centerX - lenVec/2 - 30, 
-      canvas.height - hDown - i*dh + 5
+      `${(dmax * i).toFixed(4)}`,
+      centerX - lenVec / 2 - 30,
+      canvas.height - hDown - i * dh + 5
     );
 
     ctx.setLineDash([]);
     ctx.beginPath();
-    for(let i = 0; i<lenVec; i++) {
-      const V = additionVec2d(vecBase, multipleToScalarVec2d(unit,i));
-      if((V.x > 0) && (V.x < W-1) && (V.y > 0) && (V.y < H-1) ) {
-        if(!(getValue(parseInt(V.y), parseInt(V.x), W, H, buffer) === -9999)) {
+    for (let i = 0; i < lenVec; i++) {
+      const V = additionVec2d(vecBase, multipleToScalarVec2d(unit, i));
+      if (V.x > 0 && V.x < W - 1 && V.y > 0 && V.y < H - 1) {
+        if (!(getValue(parseInt(V.y), parseInt(V.x), W, H, buffer) === -9999)) {
           //билинейное интерполяция значения
           const ii = V.y;
           const jj = V.x;
@@ -761,23 +794,24 @@ function drawGraphWolnogramma(geometry, buffer, vecW, scale) {
           const v01 = getValue(pi, pj + 1, W, H, buffer);
           const v10 = getValue(pi + 1, pj, W, H, buffer);
           const v11 = getValue(pi + 1, pj + 1, W, H, buffer);
-          const vj0 = v00*(1 - kj) + v01 * kj;
-          const vj1 = v10*(1 - kj) + v11 * kj;
-          const value = vj0*(1 - ki) + vj1 * ki;
-          
-          ctx.moveTo(centerX - lenVec/2 + i, canvas.height - hDown);
-          ctx.lineTo(centerX - lenVec/2 + i, 
-            canvas.height - hDown - 
-            hL * (value - globalMaxMin.min) / (globalMaxMin.max - globalMaxMin.min));
+          const vj0 = v00 * (1 - kj) + v01 * kj;
+          const vj1 = v10 * (1 - kj) + v11 * kj;
+          const value = vj0 * (1 - ki) + vj1 * ki;
+
+          ctx.moveTo(centerX - lenVec / 2 + i, canvas.height - hDown);
+          ctx.lineTo(
+            centerX - lenVec / 2 + i,
+            canvas.height -
+              hDown -
+              (hL * (value - globalMaxMin.min)) /
+                (globalMaxMin.max - globalMaxMin.min)
+          );
         }
       }
     }
-    
+
     ctx.stroke();
   }
-
-
-
 }
 
 function drawWolnogramma(geometry, buffer, vec, scale, imgCanvas) {
@@ -811,24 +845,24 @@ function updateUrlListener() {
 }
 
 // Отслеживание положения мыши
-canvas.addEventListener('mousemove', (event) => {
-  if(!isUpdateWolnogramma) {
-      return;
+canvas.addEventListener("mousemove", (event) => {
+  if (!isUpdateWolnogramma) {
+    return;
   }
   let W = parseInt(globalWidth, 10);
   let H = parseInt(globalHeight, 10);
   const rect = canvas.getBoundingClientRect();
-  const x = event.clientX - rect.left - centerX + W/2;
-  const y = event.clientY - rect.top - centerY + H/2;
+  const x = event.clientX - rect.left - centerX + W / 2;
+  const y = event.clientY - rect.top - centerY + H / 2;
   geometryWolnogramma.x1 = x;
   geometryWolnogramma.y1 = y;
-  console.log(`Mouse position: x=${geometryWolnogramma.x1}, y=${geometryWolnogramma.y1}`);
+  console.log(
+    `Mouse position: x=${geometryWolnogramma.x1}, y=${geometryWolnogramma.y1}`
+  );
   updateWolnogramma();
-  
 });
 
-
-canvas.addEventListener('mousedown', (event) => {
+canvas.addEventListener("mousedown", (event) => {
   console.log(`Mouse down at button: ${event.button}`);
   if (globalStep !== 1 || savedImageCanvas === null) {
     return;
@@ -836,20 +870,20 @@ canvas.addEventListener('mousedown', (event) => {
   let W = parseInt(globalWidth, 10);
   let H = parseInt(globalHeight, 10);
   const rect = canvas.getBoundingClientRect();
-  const x = event.clientX - rect.left - centerX + W/2;
-  const y = event.clientY - rect.top - centerY + H/2;
+  const x = event.clientX - rect.left - centerX + W / 2;
+  const y = event.clientY - rect.top - centerY + H / 2;
   geometryWolnogramma.x0 = x;
   geometryWolnogramma.y0 = y;
   isUpdateWolnogramma = true;
 });
 
-canvas.addEventListener('mouseup', (event) => {
+canvas.addEventListener("mouseup", (event) => {
   console.log(`Mouse up at button: ${event.button}`);
   isUpdateWolnogramma = false;
 });
 
-canvas.addEventListener('click', (event) => {
-  console.log('Mouse click detected');
+canvas.addEventListener("click", (event) => {
+  console.log("Mouse click detected");
 });
 
 paramChiInput.addEventListener("input", updateUrlListener);
