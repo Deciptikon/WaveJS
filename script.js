@@ -71,6 +71,7 @@ let globalWidth = parseInt(canvasWidthInput, 10);
 let globalHeight = parseInt(canvasHeightInput, 10);
 let globalScale = parseFloat(paramScaleInput, 10);
 let globalMaxMin = { max: 0, min: 0 };
+let globalParams = {};
 
 let isFirstDraw = true;
 let animationFrameId = null;
@@ -108,6 +109,7 @@ function updateCanvas(paramsURL) {
     Gamma,
     Ro,
   } = paramsURL;
+  globalParams = paramsURL;
 
   const paramR = 200;
   const paramr = 100;
@@ -377,6 +379,18 @@ function setFlag(flag, keyName = "flag_saved_epure_wavejs") {
   }
 }
 
+// Функция сохранения всех параметров в localStorage
+function saveParamsToLocalStorage(params, key = "saved_params_wavejs") {
+  try {
+    localStorage.setItem(key, JSON.stringify(params));
+    console.log("Параметры успешно сохранены в localStorage");
+    return true;
+  } catch (error) {
+    console.error("Ошибка сохранения в localStorage:", error);
+    return false;
+  }
+}
+
 function draw(W, H) {
   //console.log(`draw: W = ${W}, H = ${H}`);
   let maxmin = getMaxMin(W, H, buffer);
@@ -395,6 +409,11 @@ function draw(W, H) {
     if (saveEpureToLocalStorage(epureImage)) {
       setFlag(true);
     }
+
+    const p = globalParams;
+    p.max = maxmin.max;
+    p.min = maxmin.min;
+    saveParamsToLocalStorage(p);
   }
   ctx.lineWidth = 2;
   ctx.strokeRect(centerX - W / 2 - 1, centerY - H / 2 - 1, W + 2, H + 2);
